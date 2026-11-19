@@ -3,14 +3,15 @@
 ## Project and phase
 
 - **Project:** SpecForge — From Requirements to Reliable Software.
-- **Current phase:** Phase 3, deterministic requirement validation.
+- **Current phase:** Phase 4 implementation complete; local Ollama execution remains unverified because Ollama is not installed/configured.
 - **Last updated:** 2026-11-20.
 - **Objective:** Add explainable, reproducible requirement validation, saved versioned reports, APIs, and a review UI.
 - **Branch and remote:** `main`; `origin` is `https://github.com/CKofficial-1797/SpecForge_AI.git`.
 - **Phase 1 commit:** `85acb98 chore: initialize project foundation`.
 - **Phase 2 commit:** `19134a7 feat: add project and requirement management`, pushed to `origin/main` with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`.
-- **Phase 3 commit:** Not created. Proposed message: `feat: add deterministic requirement validation`. Do not commit until the user explicitly approves.
-- **Current Git status:** Phase 3 changes are uncommitted across the validation module, integration tests, frontend validation components/services/pages, Prisma schema and two migrations, and updated README/docs/handoff. `main` was clean and up to date at `19134a7` before Phase 3.
+- **Phase 3 commit:** `2d0c7fb feat: add deterministic requirement validation`, pushed to `origin/main`.
+- **Phase 4 commit:** Not created. Proposed message: `feat: add local AI requirement analysis`. Do not commit until the user explicitly approves.
+- **Current Git status:** Phase 4 changes are uncommitted. Update this section with final `git status` before approval.
 
 ## Previous phase history
 
@@ -28,7 +29,18 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 - Added server-side validation, paginated report-history, saved-report detail, and project-summary APIs. Request bodies do not supply trusted findings. Project summaries count only saved reports for each requirement's current version.
 - Added requirement detail validation and history UI, plus a project validation summary. UI includes finding evidence/recommendations, severity labels, stale-version notices, history paging, and loading/error/empty/retry states.
 - Added migrations `20261119185544_phase3_validation_reports` and `20261119191551_phase3_validation_report_version_fk`.
-- No AI functionality or Phase 4 work was added.
+- Phase 3 implementation was committed and pushed as `2d0c7fb`.
+
+## Phase 4 implementation
+
+- Added optional direct Ollama chat client (`/api/chat`) with configurable base URL, model, timeout, bounded retries, JSON format request, safe failure mapping, tags health check, and injected client boundary for tests.
+- AI remains disabled by default. The machine check found no Ollama executable/endpoint, about 15.3 GiB RAM, and no listed GPU adapter. Per user choice, no model default is locked; `OLLAMA_MODEL` is blank and must be configured after local verification. No Ollama/model was installed or downloaded.
+- Added versioned prompt and strict Zod schema, controlled current-version target plus bounded same-project non-archived relational context, untrusted-input separation, explicit/missing/inference/uncertainty basis labels, output byte/schema/reference/quoted-evidence/duplicate guardrails, and no generated instruction execution.
+- Added persisted JSONB `AiAnalysis` records with exact target version FK, context version references, model/prompt/schema/rule versions, status, safe error code, and execution timestamps/duration.
+- Added `/api/ai/health`, `POST /api/requirements/:requirementId/analyze`, and paginated history/detail routes. Successful analyze requests run or retrieve the current-version deterministic report and return it separately beside the AI analysis. Failed AI outputs are never saved as successful.
+- Added separate semantic AI section and health state on requirement detail. Confidence is labeled as a model estimate. Analysis remains synchronous and request timeout is bounded by `OLLAMA_TIMEOUT_MS`.
+- Migration: `20261120103000_phase4_ai_analysis`.
+- Mocked client/output guard tests added. Real model execution is unverified because Ollama is unavailable.
 
 ## Known limitations
 
@@ -41,14 +53,26 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 ## Validation results
 
 - Phase 1/2 regression before Phase 3: unit tests passed (frontend 1, backend 8); integration passed (5 tests); typecheck and lint passed.
-- `npm run test`: passed after Phase 3 (frontend 3 tests; backend 22 tests).
+- Phase 3 `npm run test`: passed (frontend 3 tests; backend 22 tests).
 - `npm run test:integration --workspace backend` with `TEST_DATABASE_URL` on `specforge_test`: passed (4 files, 9 tests), including report persistence, immutable historical results, current-version summaries, scoped report access, ignored client findings, and simulated report-persistence failure handling.
 - `npm run typecheck`, `npm run lint`, `npm run build`, and `npm run format:check`: passed.
 - `npx prisma validate --schema prisma/schema.prisma`: passed.
-- Both Phase 3 migrations were applied to local development and isolated test databases.
+- Phase 3 migrations were applied to local development and isolated test databases.
 - `docker compose config --quiet`: passed. Docker images rebuilt and all services started; backend logs reported four migrations and no pending migrations.
 - Live smoke checks: API health returned `{ "status": "ok", "service": "specforge-api" }`; `/api/projects` returned an empty paginated list; a missing requirement validation route returned 404; frontend `/projects` returned HTTP 200.
 - GitHub Actions was not run remotely for Phase 3.
+
+## Phase 4 validation results
+
+- `npm run test`: passed after Phase 4 (frontend 3 tests; backend 33 tests).
+- Integration regression against isolated `specforge_test`: passed after Phase 4 (5 files, 12 tests), including same-project context filtering, exact target version, successful mocked persistence/history, invalid output rejection, and unavailable handling.
+- `npm run typecheck`: passed.
+- `npm run lint`: passed after removing one unused test import.
+- `npm run build`: passed for backend and frontend.
+- `npm run format:check`: passed.
+- `npx prisma validate --schema prisma/schema.prisma`: passed.
+- Phase 4 migration applied successfully to both local `specforge` and isolated `specforge_test` databases; integration regression passed after migration.
+- No live Ollama/model verification; mocked tests passed only.
 
 ## Relevant files
 
@@ -60,7 +84,7 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 
 ## Git and next steps
 
-- Current changes are Phase 3 work on `main`; Phase 2 remains the last commit on `origin/main`.
-- Proposed commit: `feat: add deterministic requirement validation`.
-- Review the Phase 3 diff and results, then wait for explicit user approval before committing or pushing.
-- **Phase 4 starting point:** the reviewed Phase 3 commit, with rule-set version `1.0.0` and the two report migrations applied. Verify this handoff and current branch first. Do not start Phase 4 without a new explicit instruction.
+- Current branch is `main`, tracking `origin/main`; pushed baseline is Phase 3 commit `2d0c7fb`. Phase 4 changes remain uncommitted and unpushed.
+- Proposed commit: `feat: add local AI requirement analysis`.
+- Review final diff/status and wait for explicit user approval before committing or pushing.
+- **Phase 5 starting point:** Phase 4 implementation, after the user configures/verifies a local Ollama model if they need live integration proof. Do not start Phase 5 until explicitly instructed.

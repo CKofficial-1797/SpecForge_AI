@@ -25,6 +25,14 @@ enum RequirementStatus {
   ARCHIVED
 }
 
+enum AiAnalysisStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+  UNAVAILABLE
+}
+
 model Project {
   id           String        @id @default(uuid()) @db.Uuid
   name         String        @db.VarChar(120)
@@ -50,6 +58,7 @@ model Requirement {
   updatedAt      DateTime             @updatedAt @db.Timestamptz(3)
   project        Project              @relation(fields: [projectId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   versions       RequirementVersion[]
+  aiAnalyses     AiAnalysis[]
 
   @@unique([projectId, requirementKey])
   @@index([projectId])
@@ -68,8 +77,31 @@ model RequirementVersion {
   createdAt     DateTime            @default(now()) @db.Timestamptz(3)
   requirement   Requirement         @relation(fields: [requirementId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   validationReports ValidationReport[]
+  aiAnalyses         AiAnalysis[]
 
   @@unique([requirementId, versionNumber])
+}
+
+model AiAnalysis {
+  id                    String          @id @default(uuid()) @db.Uuid
+  requirementId         String          @db.Uuid
+  requirementVersion    Int
+  modelName             String?         @db.VarChar(120)
+  promptVersion         String          @db.VarChar(40)
+  schemaVersion         String          @db.VarChar(40)
+  ruleSetVersion        String?         @db.VarChar(40)
+  status                AiAnalysisStatus @default(PENDING)
+  outputData            Json?           @db.JsonB
+  contextVersions       Json            @db.JsonB
+  errorCode             String?         @db.VarChar(80)
+  createdAt             DateTime        @default(now()) @db.Timestamptz(3)
+  completedAt           DateTime?       @db.Timestamptz(3)
+  durationMs            Int?
+  requirement           Requirement     @relation(fields: [requirementId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  requirementVersionRef RequirementVersion @relation(fields: [requirementId, requirementVersion], references: [requirementId, versionNumber], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([requirementId, requirementVersion, createdAt])
+  @@index([status, createdAt])
 }
 
 model ValidationReport {

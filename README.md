@@ -2,7 +2,7 @@
 
 **From Requirements to Reliable Software.**
 
-SpecForge is an engineering quality and requirement intelligence platform. It supports project and requirement management, immutable requirement versions, and deterministic, explainable requirement validation. Validation identifies heuristic warnings and narrowly supported consistency concerns; it does not assign a quality score. AI analysis, acceptance-criteria generation, and traceable test workflows are not implemented.
+SpecForge is an engineering quality and requirement intelligence platform. It supports project and requirement management, immutable requirement versions, deterministic validation, and optional local AI-assisted semantic analysis. AI findings are advisory, version-bound, and shown separately from deterministic results. Acceptance-criteria generation and traceable test workflows are not implemented.
 
 ## Stack and architecture
 
@@ -40,6 +40,12 @@ The schema is `prisma/schema.prisma`. Create development migrations with `npm ru
 Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`, and `npm run build`. Integration tests require a dedicated `specforge_test` PostgreSQL database; set `TEST_DATABASE_URL` to that database and run `npm run test:integration --workspace backend`. CI applies migrations and runs both test suites on pushes and pull requests targeting `main`. Remote GitHub Actions results require a successful push and workflow run.
 
 The requirement detail page can run validation, show saved report findings and suggested next actions, and inspect report history. Project details show analyzed, error, warning, clean, and unanalyzed requirement counts for current requirement versions. Heuristics are warnings and may need human review; exact duplicates compare normalized title and description, and conflict checks support only stated authentication and session-duration patterns.
+
+## Optional local AI analysis
+
+SpecForge can use a local Ollama model for semantic findings and product-owner clarification questions. Ollama is optional; CRUD, version history, and deterministic validation work without it. AI content is treated as untrusted, validated before persistence, and never changes requirement content or deterministic results. Confidence is a model estimate, not a probability. Semantic analysis may miss issues or raise incorrect suggestions.
+
+The AI integration is disabled by default. After installing Ollama and verifying a suitable Qwen2.5 Instruct model on your machine, set `OLLAMA_ENABLED=true` and `OLLAMA_MODEL` to the exact installed model tag. Configure `OLLAMA_BASE_URL`, `OLLAMA_TIMEOUT_MS`, and `OLLAMA_MAX_RETRIES` as needed. The application does not download models or send requirement data to cloud providers. Health is available at `/api/ai/health`. See [local AI setup](docs/DEVELOPMENT.md#optional-ollama-ai-analysis).
 
 ## Troubleshooting
 

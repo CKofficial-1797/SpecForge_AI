@@ -8,6 +8,11 @@ import { ValidationReportView } from "../components/ValidationReportView";
 import { ApiRequestError } from "../services/api";
 import { getProject } from "../services/projects";
 import {
+  analyzeRequirement as runAiAnalysis,
+  getAiHealth,
+  listAiAnalyses,
+} from "../services/ai";
+import {
   archiveRequirement,
   getRequirement,
   getRequirementVersion,
@@ -103,6 +108,27 @@ export function RequirementDetailPage() {
         }),
         client.invalidateQueries({
           queryKey: ["project-validation-summary", item.data?.projectId],
+        }),
+      ]);
+    },
+  });
+  const aiHealth = useQuery({
+    queryKey: ["ai-health"],
+    queryFn: getAiHealth,
+    refetchInterval: 30000,
+  });
+  const aiHistory = useQuery({
+    queryKey: ["ai-analyses", requirementId],
+    queryFn: () => listAiAnalyses(requirementId),
+    enabled: !!requirementId,
+  });
+  const aiAnalysis = useMutation({
+    mutationFn: () => runAiAnalysis(requirementId),
+    onSettled: async () => {
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ["ai-analyses", requirementId] }),
+        client.invalidateQueries({
+          queryKey: ["validation-reports", requirementId],
         }),
       ]);
     },
@@ -291,6 +317,178 @@ export function RequirementDetailPage() {
                 empty={!validationHistory.isLoading && !validationHistory.error}
                 emptyMessage="No validation reports yet. Run validation to save the first report."
               />
+            )}
+          </section>
+          <section
+            className="validation-section ai-section"
+            aria-labelledby="ai-analysis-title"
+          >
+            <div className="validation-section-heading">
+              <div>
+                <h2 id="ai-analysis-title">AI semantic analysis</h2>
+                <p>
+                  Separate, model-assisted review. Findings are suggestions for
+                  human review; confidence is a model estimate, not a
+                  probability.
+                </p>
+              </div>
+              <button
+                className="button button-primary"
+                disabled={!aiHealth.data?.available || aiAnalysis.isPending}
+                onClick={() => aiAnalysis.mutate()}
+              >
+                {aiAnalysis.isPending ? "Analyzing…" : "Run AI analysis"}
+              </button>
+            </div>
+            {aiHealth.isLoading && (
+              <p className="ai-health-note">
+                Checking optional Ollama availability…
+              </p>
+            )}
+            {aiHealth.data && (
+              <p
+                className={`ai-health-note${aiHealth.data.available ? " available" : " unavailable"}`}
+                role="status"
+              >
+                {aiHealth.data.available
+                  ? `Available · ${aiHealth.data.model}`
+                  : "AI unavailable · configure and start a local Ollama model to enable semantic analysis."}
+              </p>
+            )}
+            {aiHealth.error && (
+              <p className="ai-health-note unavailable">
+                AI availability could not be checked. Requirement management and
+                deterministic validation remain available.
+              </p>
+            )}
+            {aiAnalysis.error && (
+              <div className="validation-error" role="alert">
+                {aiAnalysis.error.message}
+              </div>
+            )}
+            {aiHistory.isError && (
+              <div className="validation-error" role="alert">
+                AI analysis history could not be loaded.{" "}
+                {aiHistory.error.message}
+              </div>
+            )}
+            {aiHistory.data?.data.map((analysis) => (
+              <article className="ai-record" key={analysis.id}>
+                <div className="ai-record-meta">
+                  <strong>
+                    AI analysis · version {analysis.requirementVersion}
+                  </strong>
+                  <span>{new Date(analysis.createdAt).toLocaleString()}</span>
+                  <span>{analysis.modelName ?? "Model not configured"}</span>
+                  <span>Prompt {analysis.promptVersion}</span>
+                </div>
+                {analysis.status !== "SUCCEEDED" || !analysis.outputData ? (
+                  <p className="ai-health-note unavailable">
+                    Analysis {analysis.status.toLowerCase()}
+                    {analysis.errorCode ? ` · ${analysis.errorCode}` : ""}. No
+                    AI result was saved.
+                  </p>
+                ) : (
+                  <>
+                    {item.data.currentVersion !==
+                      analysis.requirementVersion && (
+                      <p className="stale-report-note">
+                        This analysis covers version{" "}
+                        {analysis.requirementVersion}; the current requirement
+                        is version {item.data.currentVersion}.
+                      </p>
+                    )}
+                    <p className="ai-summary">{analysis.outputData.summary}</p>
+                    <h3>Semantic findings</h3>
+                    {analysis.outputData.findings.length ? (
+                      <div className="finding-list">
+                        {analysis.outputData.findings.map((finding, index) => (
+                          <article
+                            className="finding-card"
+                            key={`${finding.category}-${index}`}
+                          >
+                            <div className="finding-heading">
+                              <span
+                                className={`severity-label severity-${finding.severity.toLowerCase()}`}
+                              >
+                                {finding.severity}
+                              </span>
+                              <span className="finding-category">
+                                {finding.category}
+                              </span>
+                              <span className="finding-category">
+                                Basis: {finding.basis.toLowerCase()}
+                              </span>
+                              <span className="finding-category">
+                                Model confidence: {finding.confidence}
+                              </span>
+                            </div>
+                            <h4>{finding.title}</h4>
+                            <p>{finding.description}</p>
+                            <p className="finding-evidence">
+                              <strong>Evidence:</strong> {finding.evidence}
+                            </p>
+                            <p className="finding-recommendation">
+                              <strong>Recommendation:</strong>{" "}
+                              {finding.recommendation}
+                            </p>
+                            {finding.affectedRequirementIds.length > 0 && (
+                              <p className="finding-category">
+                                Related requirements:{" "}
+                                {finding.affectedRequirementIds.join(", ")}
+                              </p>
+                            )}
+                          </article>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="validation-empty">
+                        No semantic findings were returned.
+                      </p>
+                    )}
+                    <h3>Clarification questions</h3>
+                    {analysis.outputData.clarificationQuestions.length ? (
+                      <ul className="ai-list">
+                        {analysis.outputData.clarificationQuestions.map(
+                          (q, index) => (
+                            <li key={index}>
+                              <strong>{q.question}</strong>
+                              <span>{q.reason}</span>
+                              {q.relatedRequirementIds.length > 0 && (
+                                <small>
+                                  Related requirements:{" "}
+                                  {q.relatedRequirementIds.join(", ")}
+                                </small>
+                              )}
+                            </li>
+                          ),
+                        )}
+                      </ul>
+                    ) : (
+                      <p className="validation-empty">
+                        No clarification questions were returned.
+                      </p>
+                    )}
+                    {analysis.outputData.limitations.length > 0 && (
+                      <>
+                        <h3>Limitations</h3>
+                        <ul className="ai-limitations">
+                          {analysis.outputData.limitations.map(
+                            (limitation, index) => (
+                              <li key={index}>{limitation}</li>
+                            ),
+                          )}
+                        </ul>
+                      </>
+                    )}
+                  </>
+                )}
+              </article>
+            ))}
+            {!aiHistory.isLoading && aiHistory.data?.data.length === 0 && (
+              <p className="validation-empty">
+                No AI analyses have been saved for this requirement.
+              </p>
             )}
           </section>
           <div className="section-heading">

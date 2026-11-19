@@ -9,6 +9,7 @@ import {
   updateRequirement,
 } from "./requirement.controller.js";
 import { validationRequirementRouter } from "../requirement-validation/validation.routes.js";
+import { requirementAiRouter } from "../ai/ai.routes.js";
 
 export const projectRequirementRouter = Router({ mergeParams: true });
 projectRequirementRouter.get("/", listRequirements);
@@ -16,6 +17,7 @@ projectRequirementRouter.post("/", createRequirement);
 
 export const requirementRouter = Router();
 requirementRouter.use("/:requirementId", validationRequirementRouter);
+requirementRouter.use("/:requirementId", requirementAiRouter);
 requirementRouter.get(
   "/:requirementId/versions/:versionNumber",
   getRequirementVersion,

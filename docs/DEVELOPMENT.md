@@ -33,6 +33,18 @@ Run the backend service tests through `npm run test --workspace backend`. To add
 
 The API runs validation server-side with `POST /api/requirements/:requirementId/validate`; request bodies are ignored and client findings are never trusted. Reports are saved for the current requirement version. Use `GET /api/requirements/:requirementId/validation-reports?page=1&pageSize=20` for history and `GET /api/requirements/:requirementId/validation-reports/:reportId` to read one saved report. `GET /api/projects/:projectId/validation-summary` aggregates saved reports that match each requirement's current version.
 
+## Optional Ollama AI analysis
+
+AI is disabled by default. Continue to run the app normally without Ollama; CRUD, version history, and deterministic validation remain available. To enable local semantic analysis:
+
+1. Install Ollama locally and verify it responds at `http://localhost:11434`.
+2. Choose a Qwen2.5 Instruct tag appropriate for your hardware, install it with Ollama, and check it appears in `ollama list`. SpecForge does not pick or download a model automatically.
+3. Set `OLLAMA_ENABLED=true`, `OLLAMA_MODEL=<installed-tag>`, and optionally `OLLAMA_BASE_URL`, `OLLAMA_TIMEOUT_MS`, and `OLLAMA_MAX_RETRIES` in the backend environment. Keep Ollama bound to localhost; do not expose its port publicly.
+4. Check `GET /api/ai/health`; it reports endpoint and configured-model availability. A successful health response does not guarantee semantically correct model output.
+5. Run `POST /api/requirements/:requirementId/analyze`. Read history at `GET /api/requirements/:requirementId/ai-analyses` and a record at `GET /api/requirements/:requirementId/ai-analyses/:analysisId`.
+
+For CI and unit tests, inject a mocked `OllamaClient`; ordinary tests require no Ollama server or model. Tests for actual local connectivity are separate and should only run when a developer has installed a compatible model. `AI_CONTEXT_MAX_RELATED` and `AI_CONTEXT_MAX_CHARS` bound the same-project non-archived context. Troubleshooting: verify the configured URL, model tag from `ollama list`, available memory, and timeout. If Ollama is stopped or the model is absent, analysis requests return a safe unavailable response and deterministic validation continues. Never paste secrets in requirement text; prompts intentionally do not include application secrets.
+
 Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`, and `npm run build`. Integration tests are isolated from the development database: create a `specforge_test` database and set `TEST_DATABASE_URL`, for example `postgresql://specforge:specforge_local@localhost:5432/specforge_test?schema=public`, then run `npm run test:integration --workspace backend`. The suite refuses any database whose name is not exactly `specforge_test`. For Docker, run `docker compose config`, build images, start services, and check `http://localhost:3000/api/health`.
 
 ## Common issues

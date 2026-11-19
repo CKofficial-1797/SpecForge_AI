@@ -31,6 +31,15 @@ Labels distinguish approved requirements, implementation defaults, and open ques
 - Conflict detection only compares explicit, supported authentication and session-duration patterns. Every detected conflict is labeled potential and includes both requirement references for human review.
 - A report is immutable application history for one requirement version. Requirement edits do not alter old reports; analysis of a new version creates a new report.
 
+## Phase 4 AI decisions
+
+- Ollama is the local-only inference boundary; the backend sends no requirement content to a cloud LLM provider. Direct HTTP keeps the dependency surface small and model execution optional.
+- Qwen2.5 Instruct is the initial model family to evaluate, but no tag is the application default. `OLLAMA_MODEL` stays unset and `OLLAMA_ENABLED=false` until a developer verifies local Ollama/model compatibility and resource fit.
+- Prompt and output schema are separately versioned. Requirement content is untrusted data; instructions remain in the system message, output is independently validated, references are restricted to supplied same-project context, and generated instructions are never executed. Prompt wording alone does not prevent injection.
+- AI output is advisory and remains separate from deterministic reports. Human review is required; the AI cannot approve, edit, or set business behavior.
+- The AI uses a bounded relational context rather than embeddings or full-project data. It excludes archived requirements and records exact version references.
+- Confidence is model-reported, not calibrated probability. Semantic coverage and contradiction detection are incomplete; evidence validation is conservative and not proof that every paraphrase is grounded.
+
 ## Open questions
 
 - What production deployment target and secret-management approach should be supported?
@@ -39,4 +48,4 @@ Labels distinguish approved requirements, implementation defaults, and open ques
 
 ## Deferred
 
-Authentication, API contract generation, deterministic analysis engine, AI/Ollama, CI deployment, and production hosting remain deferred after Phase 2.
+Authentication, clarification workflows, acceptance criteria and test generation, vector search, background queues, CI deployment, and production hosting remain deferred.
