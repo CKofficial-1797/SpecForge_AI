@@ -69,3 +69,27 @@ Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`,
 # Traceability and coverage
 
 Project details provide a traceability matrix and coverage/approval overview. To inspect endpoint payloads, use the API paths and coverage definition in [TRACEABILITY.md](TRACEABILITY.md). The feature uses the existing database relationships and needs no migration. Its calculator tests run without PostgreSQL; endpoint integration tests use the isolated `specforge_test` database like the rest of the integration suite.
+
+## Phase 8 security, health, and local AI evaluation
+
+On Windows, install Ollama using the [official Windows installer](https://ollama.com/download/windows). If Windows requests administrator approval, complete the installation interactively. This machine check found about 15.3 GiB system memory and an RTX 3050 Laptop GPU with 6 GiB VRAM. A Qwen2.5 3B variant is the conservative starting point; the official Ollama library lists roughly 1.9 GB for the 3B quantized model and 4.7 GB for 7B, before runtime/context overhead. No model is locked in the repository and AI stays disabled until local verification.
+
+After installation, open a new PowerShell window and run:
+
+```powershell
+ollama --version
+ollama list
+ollama run qwen2.5:3b-instruct
+```
+
+Confirm a response in the Ollama session. Then configure the backend environment (do not commit `.env`):
+
+```text
+OLLAMA_ENABLED=true
+OLLAMA_MODEL=qwen2.5:3b-instruct
+OLLAMA_BASE_URL=http://localhost:11434
+```
+
+Restart the API, verify `GET /api/ai/health`, and run `npm run evaluate:ai --workspace backend`. This runs real local calls across the versioned 14-case dataset. The evaluator reports actual results; it exits `BLOCKED` when Ollama/model configuration is missing. Domain reviewers must approve expected labels before reporting category precision/recall as benchmark metrics. Never expose Ollama port 11434 publicly.
+
+Health endpoints: `/api/health` checks application liveness; `/api/health/ready` checks PostgreSQL; `/api/ai/health` checks the optional model. See [SECURITY.md](../SECURITY.md), [AI_EVALUATION.md](AI_EVALUATION.md), and [RELIABILITY.md](RELIABILITY.md).

@@ -60,10 +60,13 @@ export function executeValidation(
         explanation: "No issue was detected by this heuristic.",
       };
     } catch (error) {
-      console.error("Requirement validation rule execution failed", {
-        ruleId: rule.ruleId,
-        error,
-      });
+      console.error(
+        JSON.stringify({
+          event: "validation_rule_failed",
+          ruleId: rule.ruleId,
+          errorType: error instanceof Error ? error.name : typeof error,
+        }),
+      );
       return {
         ruleId: rule.ruleId,
         ruleName: rule.ruleName,

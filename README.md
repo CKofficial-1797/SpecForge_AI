@@ -59,7 +59,11 @@ Generate draft test cases only from resolved acceptance criteria explicitly appr
 
 ## Traceability and coverage
 
-Project details include a version-aware traceability matrix linking requirements to acceptance criteria and generated test cases, current and historical coverage, approval counts, and coverage gaps. Coverage counts only resolved, approved criteria for current non-archived versions and approved cases from successful generation runs. Historical evidence is shown separately. See [traceability and coverage](docs/TRACEABILITY.md).
+Project details include a version-aware traceability matrix linking requirements to acceptance criteria and generated test cases, current and historical coverage, approval counts, and coverage gaps. Coverage counts approved criteria for current non-archived versions and approved cases with valid exact-version links. Historical evidence is shown separately. See [traceability and coverage](docs/TRACEABILITY.md).
+
+## Security and readiness
+
+SpecForge currently has no authentication or project-level user authorization. Do not expose it to untrusted networks or use it as a multi-user service until access control is implemented. Docker Compose development ports bind to localhost. See [security findings and deployment precautions](SECURITY.md), [AI evaluation](docs/AI_EVALUATION.md), and [reliability behavior](docs/RELIABILITY.md).
 
 ## Troubleshooting
 

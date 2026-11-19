@@ -5,9 +5,10 @@ import {
   listAnalyses,
   runAnalysis,
 } from "./ai.controller.js";
+import { aiRateLimit } from "../../middleware/rate-limit.js";
 export const aiRouter = Router();
 aiRouter.get("/health", aiHealth);
 export const requirementAiRouter = Router({ mergeParams: true });
-requirementAiRouter.post("/analyze", runAnalysis);
+requirementAiRouter.post("/analyze", aiRateLimit, runAnalysis);
 requirementAiRouter.get("/ai-analyses", listAnalyses);
 requirementAiRouter.get("/ai-analyses/:analysisId", getAnalysis);

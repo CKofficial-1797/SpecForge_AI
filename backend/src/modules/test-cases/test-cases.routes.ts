@@ -10,9 +10,10 @@ import {
   update,
   validate,
 } from "./test-cases.controller.js";
+import { aiRateLimit } from "../../middleware/rate-limit.js";
 
 export const requirementTestCasesRouter = Router({ mergeParams: true });
-requirementTestCasesRouter.post("/test-cases/generate", generate);
+requirementTestCasesRouter.post("/test-cases/generate", aiRateLimit, generate);
 requirementTestCasesRouter.get("/test-cases", list);
 requirementTestCasesRouter.get("/test-generation-runs", history);
 

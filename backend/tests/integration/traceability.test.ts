@@ -61,6 +61,16 @@ afterAll(async () => {
 });
 
 describe("traceability API", () => {
+  it("reports database readiness independently of optional AI", async () => {
+    const response = await request(app).get("/api/health/ready");
+    expect(response.status).toBe(200);
+    expect(response.body.data).toEqual({
+      application: "ok",
+      database: "ok",
+      ai: "optional",
+    });
+  });
+
   it("returns project summary, approval overview, matrix, and gaps without loading unscoped data", async () => {
     const { project, requirement } = await fixture();
     const summary = await request(app).get(

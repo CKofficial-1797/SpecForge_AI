@@ -59,3 +59,9 @@ The requirement detail screen keeps generated suggestions, deterministic finding
 The traceability module reads the existing composite requirement/version/criterion/generation-run relationships. It computes current and historical coverage without mutating approval state. Project matrix rows are paginated at the requirement level and related artifacts are loaded in batches. Project summaries use grouped counts and compact identifiers. A pure coverage calculator defines eligibility, uniqueness, stale status, and gap codes; the existing deterministic validation and AI/test generation findings remain separate.
 
 The matrix, summary, gap, approval, and per-artifact trace endpoints are mounted under the existing project, requirement, criterion, and test-case routers. PostgreSQL composite foreign keys prevent cross-project and mismatched-version links. `INVALID` remains visible as an integrity signal for legacy/corrupt data; the application does not repair it automatically. There is no Phase 7 migration.
+
+# Security and operations (Phase 8)
+
+API requests receive correlation IDs and structured logs exclude query values, request bodies, and prompt content. The API and Nginx set baseline security headers; request size and per-process request rates are bounded. Health endpoints separate application liveness, database readiness, and optional Ollama status. Ollama output is capped before parsing, then passes existing strict schemas and semantic/reference checks.
+
+Authentication and project ownership/roles do not exist. All resource routes are currently addressable by UUID without a user principal; therefore, the API must remain restricted to a trusted local network until authorization is added. No authentication architecture or role model was introduced in Phase 8 per the user's decision to defer it. See `SECURITY.md`, `docs/RELIABILITY.md`, and `docs/AI_EVALUATION.md`.

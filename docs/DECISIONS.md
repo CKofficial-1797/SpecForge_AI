@@ -74,3 +74,10 @@ Authentication, generated test plans, vector search, background queues, CI deplo
 - Keep historical coverage separate and show zero eligible criteria as not applicable, not full coverage.
 - Treat gaps as review guidance. They do not change requirement, criterion, refinement, or test case statuses.
 - Use relational retrieval and grouped counts; no embeddings or project-wide text export are needed.
+
+# Phase 8: security and evaluation
+
+- Defer authentication and authorization architecture by user choice. Record the open API as a high-severity blocker; do not describe the product as safe for multi-user/public deployment.
+- Keep Ollama optional and disabled until local installation and real inference are verified. Do not download model weights in CI.
+- Use bounded in-process rate limits and response-size limits without introducing a new infrastructure service. Document that limits are not distributed and proxy-aware identity requires explicit trusted-proxy configuration.
+- Treat the 14-case AI evaluation labels as provisional until a domain reviewer approves them; report real inference separately from mocked unit tests.

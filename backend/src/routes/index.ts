@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { asyncHandler } from "../utils/async-handler.js";
+import { prisma } from "../config/database.js";
 import { projectRouter } from "../modules/projects/project.routes.js";
 import { requirementRouter } from "../modules/requirements/requirement.routes.js";
 import { aiRouter } from "../modules/ai/ai.routes.js";
@@ -15,6 +17,21 @@ export const apiRouter = Router();
 apiRouter.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok", service: "specforge-api" });
 });
+apiRouter.get(
+  "/health/ready",
+  asyncHandler(async (_req, res) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      res.status(200).json({
+        data: { application: "ok", database: "ok", ai: "optional" },
+      });
+    } catch {
+      res.status(503).json({
+        data: { application: "ok", database: "unavailable", ai: "optional" },
+      });
+    }
+  }),
+);
 apiRouter.use("/projects", projectRouter);
 apiRouter.use("/ai", aiRouter);
 apiRouter.use("/clarifications", clarificationRouter);

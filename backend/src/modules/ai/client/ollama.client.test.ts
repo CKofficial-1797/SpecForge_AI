@@ -56,6 +56,17 @@ describe("HttpOllamaClient", () => {
     ).rejects.toMatchObject({ code: "AI_INVALID_RESPONSE" });
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
+  it("rejects oversized streamed responses before parsing them", async () => {
+    const oversized = new Response("x".repeat(512_001));
+    const fetcher = vi.fn().mockResolvedValue(oversized);
+    await expect(
+      new HttpOllamaClient(fetcher, config).generate({
+        model: config.model,
+        messages: [],
+      }),
+    ).rejects.toMatchObject({ code: "AI_RESPONSE_TOO_LARGE" });
+    expect(fetcher).toHaveBeenCalledOnce();
+  });
   it("maps request timeout and malformed transport JSON", async () => {
     const timeout = new Error("aborted");
     timeout.name = "TimeoutError";

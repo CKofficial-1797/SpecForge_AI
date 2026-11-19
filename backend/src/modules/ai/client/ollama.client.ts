@@ -24,6 +24,34 @@ export class HttpOllamaClient implements OllamaClient {
   ) {}
 
   async generate(input: OllamaGenerateInput): Promise<string> {
+    const startedAt = Date.now();
+    try {
+      const content = await this.generateWithRetries(input);
+      console.info(
+        JSON.stringify({
+          event: "ollama_inference",
+          model: input.model,
+          success: true,
+          durationMs: Date.now() - startedAt,
+        }),
+      );
+      return content;
+    } catch (error) {
+      console.warn(
+        JSON.stringify({
+          event: "ollama_inference",
+          model: input.model,
+          success: false,
+          durationMs: Date.now() - startedAt,
+          errorCode:
+            error instanceof OllamaError ? error.code : "AI_UNAVAILABLE",
+        }),
+      );
+      throw error;
+    }
+  }
+
+  private async generateWithRetries(input: OllamaGenerateInput) {
     if (!this.config.enabled || !this.config.model)
       throw new OllamaError("AI_UNAVAILABLE", "AI analysis is not configured");
     let attempt = 0;
@@ -56,7 +84,7 @@ export class HttpOllamaClient implements OllamaClient {
             "Ollama request failed",
             response.status,
           );
-        const payload: unknown = await response.json();
+        const payload: unknown = await readBoundedJson(response, 512_000);
         if (
           !isRecord(payload) ||
           !isRecord(payload.message) ||
@@ -115,7 +143,7 @@ export class HttpOllamaClient implements OllamaClient {
       );
       if (!response.ok)
         return { available: false, modelAvailable: false, model };
-      const payload: unknown = await response.json();
+      const payload: unknown = await readBoundedJson(response, 128_000);
       const models =
         isRecord(payload) && Array.isArray(payload.models)
           ? payload.models
@@ -132,6 +160,46 @@ export class HttpOllamaClient implements OllamaClient {
     }
   }
 }
+
+async function readBoundedJson(response: Response, maxBytes: number) {
+  const declaredLength = Number(response.headers.get("content-length"));
+  if (Number.isFinite(declaredLength) && declaredLength > maxBytes)
+    throw new OllamaError(
+      "AI_RESPONSE_TOO_LARGE",
+      "Ollama response exceeds the configured response limit",
+      502,
+    );
+  if (!response.body) throw new SyntaxError("Missing response body");
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > maxBytes) {
+        await reader.cancel();
+        throw new OllamaError(
+          "AI_RESPONSE_TOO_LARGE",
+          "Ollama response exceeds the configured response limit",
+          502,
+        );
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return JSON.parse(new TextDecoder().decode(bytes)) as unknown;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }

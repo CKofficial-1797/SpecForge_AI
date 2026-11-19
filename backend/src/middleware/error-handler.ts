@@ -54,12 +54,37 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, next) => {
     return;
   }
 
-  console.error("Unhandled API error", error);
+  if (isRecord(error) && error.type === "entity.too.large") {
+    res.status(413).json({
+      error: {
+        code: "REQUEST_TOO_LARGE",
+        message: "Request body exceeds the 1 MB limit",
+      },
+    });
+    return;
+  }
+
+  const requestId = res.locals?.requestId ?? null;
+  console.error(
+    JSON.stringify({
+      event: "unhandled_api_error",
+      requestId,
+      errorType: error instanceof Error ? error.name : typeof error,
+      errorCode:
+        isRecord(error) && typeof error.code === "string"
+          ? error.code
+          : undefined,
+    }),
+  );
   res.status(500).json({
-    error: { code: "INTERNAL_ERROR", message: "Unexpected server error" },
+    error: {
+      code: "INTERNAL_ERROR",
+      message: "Unexpected server error",
+      requestId,
+    },
   });
 };
 
 function isRecord(value: unknown): value is { code?: unknown; type?: unknown } {
-  return typeof value === "object" && value !== null && "code" in value;
+  return typeof value === "object" && value !== null;
 }

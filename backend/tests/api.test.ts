@@ -8,12 +8,32 @@ describe("API foundation", () => {
     const response = await request(app).get("/api/health");
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ status: "ok", service: "specforge-api" });
+    expect(response.headers["x-request-id"]).toMatch(/^[0-9a-f-]{36}$/);
+    expect(response.headers["x-content-type-options"]).toBe("nosniff");
+    expect(response.headers["x-frame-options"]).toBe("DENY");
   });
 
   it("returns a consistent 404 response for unknown routes", async () => {
     const response = await request(app).get("/api/missing");
     expect(response.status).toBe(404);
     expect(response.body.error.code).toBe("NOT_FOUND");
+  });
+
+  it("does not grant CORS access to unknown origins", async () => {
+    const response = await request(app)
+      .options("/api/health")
+      .set("Origin", "https://untrusted.example")
+      .set("Access-Control-Request-Method", "POST");
+    expect(response.headers["access-control-allow-origin"]).toBeUndefined();
+  });
+
+  it("returns 413 rather than an internal error for oversized JSON", async () => {
+    const response = await request(app)
+      .post("/api/projects")
+      .set("Content-Type", "application/json")
+      .send(`{"name":"${"x".repeat(1_100_100)}"}`);
+    expect(response.status).toBe(413);
+    expect(response.body.error.code).toBe("REQUEST_TOO_LARGE");
   });
 
   it("formats unexpected errors through the centralized handler", () => {
@@ -29,11 +49,11 @@ describe("API foundation", () => {
       error: {
         code: "INTERNAL_ERROR",
         message: "Unexpected server error",
+        requestId: null,
       },
     });
     expect(errorLog).toHaveBeenCalledWith(
-      "Unhandled API error",
-      expect.any(Error),
+      expect.stringContaining('"event":"unhandled_api_error"'),
     );
     errorLog.mockRestore();
   });

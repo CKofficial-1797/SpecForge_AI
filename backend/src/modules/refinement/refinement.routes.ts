@@ -6,9 +6,14 @@ import {
   listDrafts,
   rejectDraft,
 } from "./refinement.controller.js";
+import { aiRateLimit } from "../../middleware/rate-limit.js";
 
 export const requirementRefinementRouter = Router({ mergeParams: true });
-requirementRefinementRouter.post("/refinement-drafts", generateDraft);
+requirementRefinementRouter.post(
+  "/refinement-drafts",
+  aiRateLimit,
+  generateDraft,
+);
 requirementRefinementRouter.get("/refinement-drafts", listDrafts);
 
 export const refinementRouter = Router();

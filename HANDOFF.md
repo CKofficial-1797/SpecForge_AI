@@ -3,7 +3,7 @@
 ## Project and phase
 
 - **Project:** SpecForge — From Requirements to Reliable Software.
-- **Current phase:** Phase 7 traceability, coverage, and approval overview implemented locally; review and verification in progress.
+- **Current phase:** Phase 8 security, reliability, and AI evaluation hardening implemented locally; awaiting user review and commit approval.
 - **Last updated:** 2026-11-20.
 - **Objective:** Build traceable requirement quality workflows through AI-assisted, human-reviewed test case drafts.
 - **Branch and remote:** `main`; `origin` is `https://github.com/CKofficial-1797/SpecForge_AI.git`.
@@ -13,7 +13,7 @@
 - **Phase 4 commit:** `66212e2 feat: add local AI requirement analysis`, pushed to `origin/main` with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`.
 - **Phase 5 commit:** `5847a3a feat: add clarification and acceptance criteria workflows`, pushed to `origin/main` with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`.
 - **Phase 6 commit:** `f45bc0d feat: add AI-assisted test case generation and review`, pushed to `origin/main` with author email `sanjaygorain1797@gmail.com`.
-- **Current Git status:** Phase 7 changes are uncommitted on `main` at `f45bc0d`; do not commit or push before explicit approval.
+- **Current Git status:** Phase 8 changes are uncommitted on `main` at `b7a98b0`; do not commit or push before explicit approval.
 
 ## Previous phase history
 
@@ -154,6 +154,34 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 
 ## Git and next steps
 
-- Current branch is `main`, tracking `origin/main` at Phase 6 commit `f45bc0d`.
-- Proposed Phase 7 commit: `feat: add end-to-end traceability and coverage overview`. Do not commit or push without explicit approval.
-- **Phase 8 starting point:** approved and committed Phase 7 implementation. Do not start Phase 8 unless explicitly instructed.
+- Current branch is `main`, tracking `origin/main` at Phase 7 commit `b7a98b0`.
+- Phase 7 is committed and pushed; the old references to uncommitted Phase 7 at `f45bc0d` are superseded by the current Git state.
+- Proposed Phase 8 commit: `security: harden AI evaluation and runtime controls`. Do not commit or push before explicit approval.
+- Phase 8 did not add database migrations or schema changes.
+
+## Phase 8 implementation
+
+- Added request IDs, baseline HTTP security headers, bounded in-memory general and AI rate limits, safe request/error logging, oversized JSON 413 handling, and a database-backed `/api/health/ready` endpoint. AI dependency health remains separate and optional.
+- Bound Compose database/API/frontend published ports to loopback. Added Nginx version suppression and browser security headers. Backend response streaming now has byte ceilings for Ollama responses.
+- Added a synthetic evaluation dataset v1.0.0 with 14 cases and prompt v1.0.0, including seven distinct prompt-injection examples. Added a real-model evaluator that uses production output validation and reports BLOCKED if Ollama is disabled/unavailable; no mocked output is counted as model performance.
+- Added `SECURITY.md`, `docs/AI_EVALUATION.md`, `docs/RELIABILITY.md`, and updated README, architecture, decisions, and development setup docs.
+- Authentication and project authorization were explicitly deferred by the user to Phase 9. The API remains open by resource UUID; the product is not ready for public or multi-user deployment. Reviewer identity is unavailable until auth is implemented.
+- Ollama is not installed/configured on this machine. No model is selected as a verified default; AI remains disabled until a model is installed and tested. The measured host reports ~15.3 GiB RAM and an RTX 3050 Laptop GPU with 6 GiB, but this is not a substitute for a real local inference run. Dataset labels remain provisional pending domain review.
+- `npm audit --omit=dev` on 2026-11-20 found three high findings in the dependency path for `effect@3.20.0` through Prisma 7.10.1 / `@prisma/config`, advisory GHSA-7589-6fvf-x4pw. npm's automatic fix proposes the breaking Prisma 6.12.0 downgrade. An override attempt did not change the lockfile; no downgrade was applied. See SEC-010 in `SECURITY.md`.
+
+## Phase 8 verification
+
+- `npm run test`: passed (frontend 5 files / 10 tests; backend 17 files / 61 tests).
+- `npm run typecheck`, `npm run lint`, and `npm run build`: passed.
+- `npm run format:check`: passed after formatting the evaluation script and app middleware setup.
+- `docker compose config --quiet` and `docker compose build`: passed for backend and frontend images. Build logs also reported the same three HIGH npm advisories in development and production dependency installs.
+- Integration tests were attempted but not completed: required `TEST_DATABASE_URL` targeting isolated `specforge_test` was not configured in this run. The attempt stopped in setup before connecting to a database. No migration/schema changes were introduced.
+- `npm run evaluate:ai --workspace backend`: correctly reported BLOCKED because AI is disabled and Ollama/model is unavailable; real inference and model quality remain unverified.
+- `npm audit --omit=dev`: failed with three HIGH advisory paths (one vulnerable package); see SEC-010. Do not release until resolved.
+- Phase 8 starting point was clean `main` at pushed `b7a98b0 feat: add end-to-end traceability and coverage overview`.
+
+## Phase 9 starting point
+
+- Begin with authentication and project-level authorization design (explicitly deferred blocker), including reviewer identity and access policies for every resource and generation/approval action.
+- Also resolve SEC-010 without an unreviewed Prisma major downgrade, then rerun full integration, container, security, and live Ollama verification as appropriate.
+- Keep Phase 8 changes uncommitted until the user explicitly approves the proposed commit.

@@ -6,10 +6,12 @@ import {
   listCriteria,
   rejectCriterion,
 } from "./acceptance.controller.js";
+import { aiRateLimit } from "../../middleware/rate-limit.js";
 
 export const requirementAcceptanceRouter = Router({ mergeParams: true });
 requirementAcceptanceRouter.post(
   "/acceptance-criteria/generate",
+  aiRateLimit,
   generateCriteria,
 );
 requirementAcceptanceRouter.get("/acceptance-criteria", listCriteria);
