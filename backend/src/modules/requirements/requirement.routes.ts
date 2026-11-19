@@ -8,12 +8,14 @@ import {
   listRequirements,
   updateRequirement,
 } from "./requirement.controller.js";
+import { validationRequirementRouter } from "../requirement-validation/validation.routes.js";
 
 export const projectRequirementRouter = Router({ mergeParams: true });
 projectRequirementRouter.get("/", listRequirements);
 projectRequirementRouter.post("/", createRequirement);
 
 export const requirementRouter = Router();
+requirementRouter.use("/:requirementId", validationRequirementRouter);
 requirementRouter.get(
   "/:requirementId/versions/:versionNumber",
   getRequirementVersion,

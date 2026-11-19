@@ -5,6 +5,7 @@ import { Modal } from "../components/Modal";
 import { ProjectForm } from "../components/ProjectForm";
 import { RequirementForm } from "../components/RequirementForm";
 import { RequestState } from "../components/RequestState";
+import { ProjectValidationSummary } from "../components/ProjectValidationSummary";
 import { ApiRequestError } from "../services/api";
 import {
   archiveProject,
@@ -17,6 +18,7 @@ import {
   listRequirements,
   type RequirementInput,
 } from "../services/requirements";
+import { getProjectValidationSummary } from "../services/validation";
 
 export function ProjectDetailPage() {
   const { projectId = "" } = useParams();
@@ -35,11 +37,19 @@ export function ProjectDetailPage() {
     queryFn: () => listRequirements(projectId, { page, pageSize: 20 }),
     enabled: !!projectId,
   });
+  const validationSummary = useQuery({
+    queryKey: ["project-validation-summary", projectId],
+    queryFn: () => getProjectValidationSummary(projectId),
+    enabled: !!projectId,
+  });
   const refresh = async () => {
     await Promise.all([
       client.invalidateQueries({ queryKey: ["project", projectId] }),
       client.invalidateQueries({ queryKey: ["projects"] }),
       client.invalidateQueries({ queryKey: ["requirements", projectId] }),
+      client.invalidateQueries({
+        queryKey: ["project-validation-summary", projectId],
+      }),
     ]);
   };
   const edit = useMutation({
@@ -67,6 +77,7 @@ export function ProjectDetailPage() {
   const issue = [
     project.error,
     requirements.error,
+    validationSummary.error,
     edit.error,
     archive.error,
     create.error,
@@ -124,6 +135,13 @@ export function ProjectDetailPage() {
               New requirement
             </button>
           </div>
+          <RequestState
+            loading={validationSummary.isLoading}
+            error={validationSummary.error}
+          />
+          {validationSummary.data && (
+            <ProjectValidationSummary summary={validationSummary.data} />
+          )}
           <RequestState
             loading={requirements.isLoading}
             error={requirements.error}

@@ -460,6 +460,223 @@ tbody tr:last-child td {
   color: #657169;
   font-size: 13px;
 }
+.validation-summary,
+.validation-section {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid #e1e7e3;
+  border-radius: 9px;
+  background: #fff;
+}
+.summary-heading,
+.validation-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.summary-heading h2,
+.validation-section-heading h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.summary-heading p,
+.validation-section-heading p {
+  margin: 7px 0 0;
+  color: #69766f;
+  font-size: 13px;
+}
+.summary-heading > strong {
+  color: #286b59;
+  font-size: 13px;
+}
+.summary-grid,
+.validation-counts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+.summary-grid > div,
+.validation-counts > div {
+  display: grid;
+  gap: 5px;
+  padding: 13px;
+  border-radius: 7px;
+  background: #f5f7f5;
+}
+.summary-grid strong,
+.validation-counts strong {
+  font-size: 21px;
+  color: #26372f;
+}
+.summary-grid span,
+.validation-counts span {
+  color: #657169;
+  font-size: 11px;
+}
+.validation-section {
+  padding: 22px;
+}
+.validation-section-heading {
+  margin: 0 0 18px;
+}
+.validation-success,
+.stale-report-note {
+  padding: 11px 13px;
+  border-radius: 6px;
+  background: #edf5f1;
+  color: #245d4d;
+  font-size: 13px;
+}
+.validation-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0;
+  color: #a33434;
+  font-size: 13px;
+}
+.validation-history-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 290px) minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 16px;
+}
+.validation-history-list {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+.validation-history-row {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #e1e7e3;
+  border-radius: 7px;
+  background: white;
+  color: #36473e;
+  text-align: left;
+  cursor: pointer;
+}
+.validation-history-row.selected {
+  border-color: #4c8a72;
+  box-shadow: 0 0 0 1px #4c8a72;
+}
+.validation-history-row strong {
+  font-size: 12px;
+}
+.validation-history-row span,
+.validation-history-row small,
+.history-note {
+  color: #758179;
+  font-size: 11px;
+}
+.history-note {
+  margin: 2px 0;
+}
+.validation-report-panel {
+  min-width: 0;
+}
+.validation-report-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 14px;
+  color: #758179;
+  font-size: 11px;
+}
+.validation-counts {
+  grid-template-columns: repeat(4, minmax(75px, 1fr));
+  margin: 14px 0 20px;
+}
+.validation-report h3 {
+  margin: 20px 0 12px;
+  font-size: 16px;
+}
+.finding-list {
+  display: grid;
+  gap: 11px;
+}
+.finding-card {
+  padding: 15px;
+  border: 1px solid #e1e7e3;
+  border-radius: 7px;
+  background: #fff;
+}
+.finding-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.severity-label {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+}
+.severity-error {
+  color: #8d2424;
+  background: #fff0ef;
+}
+.severity-warning {
+  color: #755214;
+  background: #fff5dc;
+}
+.severity-info {
+  color: #315b77;
+  background: #edf6fc;
+}
+.finding-rule,
+.finding-category {
+  color: #758179;
+  font-size: 10px;
+}
+.finding-card h4 {
+  margin: 11px 0 6px;
+  font-size: 14px;
+}
+.finding-card p {
+  margin: 7px 0;
+  color: #59665f;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.finding-card .finding-evidence {
+  padding: 9px;
+  border-radius: 5px;
+  background: #f5f7f5;
+}
+.finding-card .finding-recommendation {
+  color: #245d4d;
+}
+.related-reference {
+  font-weight: 600;
+}
+.validation-empty {
+  padding: 15px;
+  border-radius: 6px;
+  background: #f5f7f5;
+  color: #59665f;
+  font-size: 13px;
+}
+.next-actions {
+  margin-top: 22px;
+}
+.next-actions h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+.next-actions ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #59665f;
+  font-size: 12px;
+  line-height: 1.65;
+}
 @media (max-width: 680px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -509,6 +726,18 @@ tbody tr:last-child td {
     grid-row: 2;
   }
   .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .summary-heading,
+  .validation-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .summary-grid,
+  .validation-counts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .validation-history-layout {
     grid-template-columns: 1fr;
   }
 }

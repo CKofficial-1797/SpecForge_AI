@@ -67,6 +67,20 @@ model RequirementVersion {
   changeSummary String?             @db.VarChar(1000)
   createdAt     DateTime            @default(now()) @db.Timestamptz(3)
   requirement   Requirement         @relation(fields: [requirementId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  validationReports ValidationReport[]
 
   @@unique([requirementId, versionNumber])
+}
+
+model ValidationReport {
+  id                String      @id @default(uuid()) @db.Uuid
+  requirementId     String      @db.Uuid
+  requirementVersion Int
+  ruleSetVersion   String      @db.VarChar(40)
+  reportData        Json        @db.JsonB
+  createdAt         DateTime    @default(now()) @db.Timestamptz(3)
+  requirementVersionRecord RequirementVersion @relation(fields: [requirementId, requirementVersion], references: [requirementId, versionNumber], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([requirementId, requirementVersion, createdAt])
+  @@index([ruleSetVersion, createdAt])
 }

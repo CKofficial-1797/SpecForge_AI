@@ -2,7 +2,7 @@
 
 **From Requirements to Reliable Software.**
 
-SpecForge is an engineering quality and requirement intelligence platform. Phase 2 adds project management, structured requirements, and immutable requirement version history. AI analysis, acceptance-criteria generation, and traceable test workflows are not implemented.
+SpecForge is an engineering quality and requirement intelligence platform. It supports project and requirement management, immutable requirement versions, and deterministic, explainable requirement validation. Validation identifies heuristic warnings and narrowly supported consistency concerns; it does not assign a quality score. AI analysis, acceptance-criteria generation, and traceable test workflows are not implemented.
 
 ## Stack and architecture
 
@@ -35,9 +35,11 @@ Use `Copy-Item .env.example .env` instead of `cp` in PowerShell. Frontend runs a
 
 ## Database and checks
 
-The schema is `prisma/schema.prisma`. Create development migrations with `npm run db:migrate -- --name descriptive_name`; generate the Prisma 7 client with `npm run db:generate`. Projects support create, list/filter/page, edit, and archive. Requirements support create, list/filter/page, edit, archive, and read-only version history. Changes to title, description, or priority create an immutable version; requirement key and status edits do not. Updates require `expectedVersion` and return HTTP 409 on stale edits.
+The schema is `prisma/schema.prisma`. Create development migrations with `npm run db:migrate -- --name descriptive_name`; generate the Prisma 7 client with `npm run db:generate`. Projects support create, list/filter/page, edit, and archive. Requirements support create, list/filter/page, edit, archive, and read-only version history. Changes to title, description, or priority create an immutable version; requirement key and status edits do not. Updates require `expectedVersion` and return HTTP 409 on stale edits. Phase 3 adds validation reports persisted for one exact requirement version and rule-set version. Checks cover required fields, vague terms, measurable conditions, actors, actions, outcomes, selected failure conditions, exact normalized duplicates, and narrowly patterned potential conflicts.
 
 Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`, and `npm run build`. Integration tests require a dedicated `specforge_test` PostgreSQL database; set `TEST_DATABASE_URL` to that database and run `npm run test:integration --workspace backend`. CI applies migrations and runs both test suites on pushes and pull requests targeting `main`. Remote GitHub Actions results require a successful push and workflow run.
+
+The requirement detail page can run validation, show saved report findings and suggested next actions, and inspect report history. Project details show analyzed, error, warning, clean, and unanalyzed requirement counts for current requirement versions. Heuristics are warnings and may need human review; exact duplicates compare normalized title and description, and conflict checks support only stated authentication and session-duration patterns.
 
 ## Troubleshooting
 
