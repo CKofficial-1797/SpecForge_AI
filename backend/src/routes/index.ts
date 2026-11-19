@@ -6,6 +6,10 @@ import { clarificationRouter } from "../modules/clarifications/clarification.rou
 import { acceptanceRouter } from "../modules/acceptance-criteria/acceptance.routes.js";
 import { refinementRouter } from "../modules/refinement/refinement.routes.js";
 import { testCaseRouter } from "../modules/test-cases/test-cases.routes.js";
+import {
+  acceptanceTraceabilityRouter,
+  testCaseTraceabilityRouter,
+} from "../modules/traceability/traceability.routes.js";
 
 export const apiRouter = Router();
 apiRouter.get("/health", (_req, res) => {
@@ -15,6 +19,8 @@ apiRouter.use("/projects", projectRouter);
 apiRouter.use("/ai", aiRouter);
 apiRouter.use("/clarifications", clarificationRouter);
 apiRouter.use("/acceptance-criteria", acceptanceRouter);
+apiRouter.use("/acceptance-criteria", acceptanceTraceabilityRouter);
 apiRouter.use("/refinement-drafts", refinementRouter);
 apiRouter.use("/test-cases", testCaseRouter);
+apiRouter.use("/test-cases", testCaseTraceabilityRouter);
 apiRouter.use("/requirements", requirementRouter);

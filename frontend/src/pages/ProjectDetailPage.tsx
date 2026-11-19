@@ -6,6 +6,7 @@ import { ProjectForm } from "../components/ProjectForm";
 import { RequirementForm } from "../components/RequirementForm";
 import { RequestState } from "../components/RequestState";
 import { ProjectValidationSummary } from "../components/ProjectValidationSummary";
+import { TraceabilityCoverage } from "../components/TraceabilityCoverage";
 import { ApiRequestError } from "../services/api";
 import {
   archiveProject,
@@ -142,6 +143,7 @@ export function ProjectDetailPage() {
           {validationSummary.data && (
             <ProjectValidationSummary summary={validationSummary.data} />
           )}
+          <TraceabilityCoverage projectId={projectId} />
           <RequestState
             loading={requirements.isLoading}
             error={requirements.error}

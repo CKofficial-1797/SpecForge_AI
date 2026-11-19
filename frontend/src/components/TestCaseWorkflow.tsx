@@ -218,39 +218,41 @@ export function TestCaseWorkflow({
         <p className="validation-empty">No test cases have been generated.</p>
       )}
       {cases.data?.map((testCase) => (
-        <TestCaseCard
-          key={testCase.id}
-          testCase={testCase}
-          edit={
-            edits[testCase.id] ?? {
-              title: testCase.title,
-              description: testCase.description,
-              expectedResult: testCase.expectedResult,
-            }
-          }
-          findings={findings[testCase.id] ?? []}
-          canApprove={approvalChecks[testCase.id]}
-          busy={
-            update.isPending ||
-            approve.isPending ||
-            reject.isPending ||
-            validate.isPending
-          }
-          onEdit={(value) => editCase(testCase.id, value)}
-          onSave={() =>
-            update.mutate({
-              id: testCase.id,
-              input: edits[testCase.id] ?? {
+        <div id={`test-case-${testCase.id}`} key={testCase.id}>
+          <TestCaseCard
+            key={testCase.id}
+            testCase={testCase}
+            edit={
+              edits[testCase.id] ?? {
                 title: testCase.title,
                 description: testCase.description,
                 expectedResult: testCase.expectedResult,
-              },
-            })
-          }
-          onValidate={() => validate.mutate(testCase.id)}
-          onApprove={() => approve.mutate(testCase.id)}
-          onReject={() => reject.mutate(testCase.id)}
-        />
+              }
+            }
+            findings={findings[testCase.id] ?? []}
+            canApprove={approvalChecks[testCase.id]}
+            busy={
+              update.isPending ||
+              approve.isPending ||
+              reject.isPending ||
+              validate.isPending
+            }
+            onEdit={(value) => editCase(testCase.id, value)}
+            onSave={() =>
+              update.mutate({
+                id: testCase.id,
+                input: edits[testCase.id] ?? {
+                  title: testCase.title,
+                  description: testCase.description,
+                  expectedResult: testCase.expectedResult,
+                },
+              })
+            }
+            onValidate={() => validate.mutate(testCase.id)}
+            onApprove={() => approve.mutate(testCase.id)}
+            onReject={() => reject.mutate(testCase.id)}
+          />
+        </div>
       ))}
     </section>
   );

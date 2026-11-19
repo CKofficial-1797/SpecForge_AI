@@ -544,6 +544,60 @@ tbody tr:last-child td {
   gap: 18px;
   margin-top: 16px;
 }
+
+.traceability-section {
+  margin: 28px 0;
+  padding: 22px;
+  border: 1px solid #dfe5e2;
+  border-radius: 14px;
+  background: #fff;
+}
+.traceability-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+.traceability-metrics article {
+  padding: 14px;
+  border: 1px solid #e6e9e7;
+  border-radius: 10px;
+}
+.traceability-metrics span {
+  display: block;
+  color: #64716b;
+  font-size: 0.85rem;
+}
+.traceability-metrics strong {
+  display: block;
+  margin-top: 6px;
+}
+.traceability-details {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid #e6e9e7;
+  border-radius: 10px;
+}
+.traceability-details > summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+.traceability-row {
+  padding: 12px 0;
+  border-top: 1px solid #e6e9e7;
+}
+.traceability-row h3 {
+  margin-bottom: 4px;
+}
+.traceability-row small,
+.traceability-criterion span {
+  color: #64716b;
+}
+.traceability-criterion {
+  margin: 10px 0 10px 12px;
+  padding-left: 12px;
+  border-left: 2px solid #dfe5e2;
+}
 .validation-history-list {
   display: grid;
   align-content: start;

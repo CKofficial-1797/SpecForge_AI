@@ -14,6 +14,7 @@ import { requirementClarificationRouter } from "../clarifications/clarification.
 import { requirementAcceptanceRouter } from "../acceptance-criteria/acceptance.routes.js";
 import { requirementRefinementRouter } from "../refinement/refinement.routes.js";
 import { requirementTestCasesRouter } from "../test-cases/test-cases.routes.js";
+import { requirementTraceabilityRouter } from "../traceability/traceability.routes.js";
 
 export const projectRequirementRouter = Router({ mergeParams: true });
 projectRequirementRouter.get("/", listRequirements);
@@ -26,6 +27,7 @@ requirementRouter.use("/:requirementId", requirementClarificationRouter);
 requirementRouter.use("/:requirementId", requirementAcceptanceRouter);
 requirementRouter.use("/:requirementId", requirementRefinementRouter);
 requirementRouter.use("/:requirementId", requirementTestCasesRouter);
+requirementRouter.use("/:requirementId", requirementTraceabilityRouter);
 requirementRouter.get(
   "/:requirementId/versions/:versionNumber",
   getRequirementVersion,

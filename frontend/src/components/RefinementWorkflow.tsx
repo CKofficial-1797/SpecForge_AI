@@ -499,7 +499,11 @@ export function RefinementWorkflow({
           emptyText="No acceptance criteria have been generated."
         />
         {criteria.data?.map((criterion) => (
-          <article className="workflow-card criterion-card" key={criterion.id}>
+          <article
+            id={`acceptance-criterion-${criterion.id}`}
+            className="workflow-card criterion-card"
+            key={criterion.id}
+          >
             <div className="workflow-card-top">
               <strong>{criterion.title}</strong>
               <span

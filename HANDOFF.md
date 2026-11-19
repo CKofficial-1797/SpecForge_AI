@@ -3,7 +3,7 @@
 ## Project and phase
 
 - **Project:** SpecForge — From Requirements to Reliable Software.
-- **Current phase:** Phase 6 test case generation and validation implemented; live Ollama execution remains unverified.
+- **Current phase:** Phase 7 traceability, coverage, and approval overview implemented locally; review and verification in progress.
 - **Last updated:** 2026-11-20.
 - **Objective:** Build traceable requirement quality workflows through AI-assisted, human-reviewed test case drafts.
 - **Branch and remote:** `main`; `origin` is `https://github.com/CKofficial-1797/SpecForge_AI.git`.
@@ -12,7 +12,8 @@
 - **Phase 3 commit:** `2d0c7fb feat: add deterministic requirement validation`, pushed to `origin/main`.
 - **Phase 4 commit:** `66212e2 feat: add local AI requirement analysis`, pushed to `origin/main` with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`.
 - **Phase 5 commit:** `5847a3a feat: add clarification and acceptance criteria workflows`, pushed to `origin/main` with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`.
-- **Current Git status:** Phase 6 changes are uncommitted on `main`. No Phase 6 commit or push has been made.
+- **Phase 6 commit:** `f45bc0d feat: add AI-assisted test case generation and review`, pushed to `origin/main` with author email `sanjaygorain1797@gmail.com`.
+- **Current Git status:** Phase 7 changes are uncommitted on `main` at `f45bc0d`; do not commit or push before explicit approval.
 
 ## Previous phase history
 
@@ -120,6 +121,28 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 - Docker image build and GitHub Actions were not run for Phase 6.
 - Ollama remains unavailable; there is no claim of real model inference.
 
+## Phase 7 implementation
+
+- Reused the existing exact-version relational links and composite foreign keys; no Prisma schema change or migration was needed.
+- Added a dedicated traceability module with a pure coverage calculator, project-scoped batch matrix loading, grouped coverage/approval summaries, actionable gaps, and requirement/criterion/test-case trace endpoints.
+- Current coverage counts each approved criterion with valid exact-version relationships once when one or more approved test cases trace to it. Historical coverage is separate; a zero denominator is `NOT_APPLICABLE` with a null percentage.
+- Added project-detail coverage, approval and gap panels, requirement/criterion/test-case trace rows, and stable criterion/case anchors. Deterministic validation findings and AI findings remain unchanged and separately presented.
+- APIs: `GET /api/projects/:projectId/traceability`, `/coverage-summary`, `/coverage-gaps`, `/approval-overview`; `GET /api/requirements/:requirementId/traceability`; `GET /api/acceptance-criteria/:criterionId/traceability`; `GET /api/test-cases/:testCaseId/traceability`.
+- Added calculator unit tests and isolated PostgreSQL integration tests. No new dependencies.
+- Documentation: README, architecture, decisions, development guide, and `docs/TRACEABILITY.md`.
+- Known limitations: authentication/reviewer identity is not implemented; matrix pages requirements but include all linked artifacts for each page; corrupt relationships are surfaced as integrity issues, not repaired. Existing database constraints should normally prevent them.
+
+## Phase 7 validation results
+
+- `npm run test`: passed (frontend 5 files / 10 tests; backend 15 files / 55 tests).
+- `npm run test:integration --workspace backend` against isolated `specforge_test`: passed (8 files / 21 tests), including project summary, approval overview, paginated matrix, gap lookup, complete trace chain, and artifact trace endpoints. Existing pg adapter deprecation warning remains.
+- `npm run typecheck`, `npm run lint`, and `npm run build`: passed.
+- `npm run format:check`: passed.
+- `npx prisma validate --schema prisma/schema.prisma`: passed; no migration required.
+- `docker compose config --quiet`: passed; no Compose changes were needed.
+- `git diff --check`: passed; Git emitted routine LF-to-CRLF normalization warnings.
+- Ollama is not involved in this phase; no live model execution is required or claimed.
+
 ## Relevant files
 
 - Engine, rules, contract, routes, and service: `backend/src/modules/requirement-validation/`.
@@ -131,6 +154,6 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 
 ## Git and next steps
 
-- Current branch is `main`, tracking `origin/main` at Phase 5 commit `5847a3a`; Phase 6 changes are local and uncommitted.
-- Proposed Phase 6 commit: `feat: add AI-assisted test case generation and review`. Do not commit or push without explicit approval.
-- **Phase 7 starting point:** the reviewed Phase 6 implementation after this commit is approved. Do not start Phase 7 unless explicitly instructed.
+- Current branch is `main`, tracking `origin/main` at Phase 6 commit `f45bc0d`.
+- Proposed Phase 7 commit: `feat: add end-to-end traceability and coverage overview`. Do not commit or push without explicit approval.
+- **Phase 8 starting point:** approved and committed Phase 7 implementation. Do not start Phase 8 unless explicitly instructed.

@@ -66,3 +66,11 @@ Labels distinguish approved requirements, implementation defaults, and open ques
 ## Deferred
 
 Authentication, generated test plans, vector search, background queues, CI deployment, and production hosting remain deferred.
+
+# Phase 7: traceability and coverage
+
+- Reuse the exact-version composite foreign keys rather than adding a duplicate trace graph or migration.
+- Count a criterion once when one or more approved test cases reference it at the same current version and have a successful generation run.
+- Keep historical coverage separate and show zero eligible criteria as not applicable, not full coverage.
+- Treat gaps as review guidance. They do not change requirement, criterion, refinement, or test case statuses.
+- Use relational retrieval and grouped counts; no embeddings or project-wide text export are needed.

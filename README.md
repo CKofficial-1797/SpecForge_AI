@@ -57,6 +57,10 @@ After answers have been incorporated into an approved requirement version, gener
 
 Generate draft test cases only from resolved acceptance criteria explicitly approved for the current requirement version. Each case keeps source criterion and version links, shows deterministic findings, and needs a separate human approval; draft edits have snapshots. The workflow reuses optional local Ollama. If Ollama is unavailable, no cases are fabricated and the rest of the application remains usable. Live model inference is unverified here. See [test case generation](docs/TEST_CASE_GENERATION.md).
 
+## Traceability and coverage
+
+Project details include a version-aware traceability matrix linking requirements to acceptance criteria and generated test cases, current and historical coverage, approval counts, and coverage gaps. Coverage counts only resolved, approved criteria for current non-archived versions and approved cases from successful generation runs. Historical evidence is shown separately. See [traceability and coverage](docs/TRACEABILITY.md).
+
 ## Troubleshooting
 
 - Docker connection failure: start Docker Desktop and wait for the engine.

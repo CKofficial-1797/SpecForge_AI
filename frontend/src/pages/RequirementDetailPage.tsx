@@ -494,6 +494,7 @@ export function RequirementDetailPage() {
             )}
           </section>
           <section
+            id="refinement-title"
             className="validation-section refinement-section"
             aria-labelledby="refinement-workflow-title"
           >

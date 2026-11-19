@@ -65,3 +65,7 @@ Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`,
 - Port occupied: change the host mapping in Compose.
 - API environment error: verify `.env` and `DATABASE_URL`.
 - Keep `.env` local; only `.env.example` belongs in Git.
+
+# Traceability and coverage
+
+Project details provide a traceability matrix and coverage/approval overview. To inspect endpoint payloads, use the API paths and coverage definition in [TRACEABILITY.md](TRACEABILITY.md). The feature uses the existing database relationships and needs no migration. Its calculator tests run without PostgreSQL; endpoint integration tests use the isolated `specforge_test` database like the rest of the integration suite.
