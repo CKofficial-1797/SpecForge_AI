@@ -53,6 +53,10 @@ Generate a refinement draft from the selected successful current-version analysi
 
 Generate Given/When/Then criteria from the canonical current requirement after unanswered/dismissed questions are handled and answer revisions have been incorporated by an approved refinement. Criteria with unresolved details remain drafts and cannot be approved. Review each criterion individually; old criteria remain attached to their source versions. API generation uses mocked Ollama clients in tests. Use `npm run test --workspace backend` for unit contracts and `TEST_DATABASE_URL=postgresql://specforge:specforge_local@localhost:5432/specforge_test?schema=public npm run test:integration --workspace backend` (PowerShell: set `$env:TEST_DATABASE_URL` first) for the isolated workflow regression.
 
+## Phase 6 test case workflow
+
+On a requirement detail page, inspect its approved criteria, generate test case drafts when local AI health reports an available model, review deterministic findings, edit drafts, and explicitly approve or reject each case. Draft edits create a revision snapshot. Generation uses approved, resolved criteria from the exact current requirement version; historical cases remain readable and cannot be approved. See [test case generation API, lifecycle, prompt and limits](TEST_CASE_GENERATION.md). CI uses mock fixtures only; installing Ollama is not required, and no real model inference has been verified.
+
 Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`, and `npm run build`. Integration tests are isolated from the development database: create a `specforge_test` database and set `TEST_DATABASE_URL`, for example `postgresql://specforge:specforge_local@localhost:5432/specforge_test?schema=public`, then run `npm run test:integration --workspace backend`. The suite refuses any database whose name is not exactly `specforge_test`. For Docker, run `docker compose config`, build images, start services, and check `http://localhost:3000/api/health`.
 
 ## Common issues

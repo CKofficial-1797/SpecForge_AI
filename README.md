@@ -53,6 +53,10 @@ Import clarification questions from a successful saved AI analysis. Questions ca
 
 After answers have been incorporated into an approved requirement version, generate Given/When/Then acceptance criteria. Each criterion remains a draft until individually approved. Unresolved details block approval, and historical criteria retain their source version. The app has no authentication model yet, so review timestamps are recorded with `reviewedBy` unset. See the [workflow development guide](docs/DEVELOPMENT.md#phase-5-clarification-and-refinement-workflow).
 
+## AI test case generation
+
+Generate draft test cases only from resolved acceptance criteria explicitly approved for the current requirement version. Each case keeps source criterion and version links, shows deterministic findings, and needs a separate human approval; draft edits have snapshots. The workflow reuses optional local Ollama. If Ollama is unavailable, no cases are fabricated and the rest of the application remains usable. Live model inference is unverified here. See [test case generation](docs/TEST_CASE_GENERATION.md).
+
 ## Troubleshooting
 
 - Docker connection failure: start Docker Desktop and wait for the engine.

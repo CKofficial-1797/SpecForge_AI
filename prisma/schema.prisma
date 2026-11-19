@@ -53,6 +53,38 @@ enum AcceptanceCriterionStatus {
   SUPERSEDED
 }
 
+enum TestGenerationRunStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+  UNAVAILABLE
+}
+
+enum TestType {
+  POSITIVE
+  NEGATIVE
+  BOUNDARY
+  VALIDATION
+  FAILURE
+  AUTHORIZATION
+  RECOVERY
+}
+
+enum TestCasePriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TestCaseStatus {
+  DRAFT
+  APPROVED
+  REJECTED
+  SUPERSEDED
+}
+
 model Project {
   id           String        @id @default(uuid()) @db.Uuid
   name         String        @db.VarChar(120)
@@ -82,6 +114,8 @@ model Requirement {
   clarifications     ClarificationQuestion[]
   refinementDrafts   RefinementDraft[]
   acceptanceCriteria AcceptanceCriterion[]
+  testGenerationRuns TestGenerationRun[]
+  testCases          TestCase[]
 
   @@unique([projectId, requirementKey])
   @@index([projectId])
@@ -103,6 +137,8 @@ model RequirementVersion {
   aiAnalyses         AiAnalysis[]
   refinementDrafts   RefinementDraft[]
   acceptanceCriteria AcceptanceCriterion[]
+  testGenerationRuns TestGenerationRun[]
+  testCases          TestCase[]
 
   @@unique([requirementId, versionNumber])
 }
@@ -206,9 +242,79 @@ model AcceptanceCriterion {
   reviewedBy               String?                   @db.VarChar(120)
   requirement              Requirement               @relation(fields: [requirementId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   sourceVersion            RequirementVersion        @relation(fields: [requirementId, sourceRequirementVersion], references: [requirementId, versionNumber], onDelete: Restrict, onUpdate: Cascade)
+  testCases                TestCase[]
 
   @@unique([requirementId, sourceRequirementVersion, fingerprint])
+  @@unique([id, requirementId, sourceRequirementVersion])
   @@index([requirementId, sourceRequirementVersion, status, createdAt])
+}
+
+model TestGenerationRun {
+  id                           String                  @id @default(uuid()) @db.Uuid
+  requirementId                String                  @db.Uuid
+  sourceRequirementVersion     Int
+  sourceAcceptanceCriterionIds Json                    @db.JsonB
+  limitations                  Json                    @default("[]") @db.JsonB
+  modelName                    String?                 @db.VarChar(120)
+  promptVersion                String                  @db.VarChar(40)
+  status                       TestGenerationRunStatus @default(PENDING)
+  errorCode                    String?                 @db.VarChar(80)
+  createdAt                    DateTime                @default(now()) @db.Timestamptz(3)
+  completedAt                  DateTime?               @db.Timestamptz(3)
+  durationMs                   Int?
+  requirement                  Requirement             @relation(fields: [requirementId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  sourceVersion                RequirementVersion      @relation(fields: [requirementId, sourceRequirementVersion], references: [requirementId, versionNumber], onDelete: Restrict, onUpdate: Cascade)
+  testCases                    TestCase[]
+
+  @@unique([id, requirementId, sourceRequirementVersion])
+  @@index([requirementId, sourceRequirementVersion, createdAt])
+  @@index([status, createdAt])
+}
+
+model TestCase {
+  id                       String              @id @default(uuid()) @db.Uuid
+  requirementId            String              @db.Uuid
+  acceptanceCriterionId    String              @db.Uuid
+  generationRunId          String              @db.Uuid
+  sourceRequirementVersion Int
+  revisionNumber           Int                 @default(1)
+  fingerprint              String              @db.Char(64)
+  title                    String              @db.VarChar(180)
+  description              String              @db.VarChar(2000)
+  testType                 TestType
+  preconditions            Json                @db.JsonB
+  testSteps                Json                @db.JsonB
+  testData                 Json                @db.JsonB
+  expectedResult           String              @db.VarChar(2000)
+  priority                 TestCasePriority    @default(MEDIUM)
+  status                   TestCaseStatus      @default(DRAFT)
+  generationSource         String              @default("OLLAMA") @db.VarChar(40)
+  createdAt                DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt                DateTime            @updatedAt @db.Timestamptz(3)
+  reviewedAt               DateTime?           @db.Timestamptz(3)
+  reviewedBy               String?             @db.VarChar(120)
+  requirement              Requirement         @relation(fields: [requirementId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  acceptanceCriterion      AcceptanceCriterion @relation(fields: [acceptanceCriterionId, requirementId, sourceRequirementVersion], references: [id, requirementId, sourceRequirementVersion], onDelete: Restrict, onUpdate: Cascade)
+  sourceVersion            RequirementVersion  @relation(fields: [requirementId, sourceRequirementVersion], references: [requirementId, versionNumber], onDelete: Restrict, onUpdate: Cascade)
+  generationRun            TestGenerationRun   @relation(fields: [generationRunId, requirementId, sourceRequirementVersion], references: [id, requirementId, sourceRequirementVersion], onDelete: Restrict, onUpdate: Cascade)
+  revisions                TestCaseRevision[]
+
+  @@unique([acceptanceCriterionId, fingerprint])
+  @@unique([id, revisionNumber])
+  @@index([requirementId, sourceRequirementVersion, status, createdAt])
+  @@index([acceptanceCriterionId, status])
+}
+
+model TestCaseRevision {
+  id             String   @id @default(uuid()) @db.Uuid
+  testCaseId     String   @db.Uuid
+  revisionNumber Int
+  snapshot       Json     @db.JsonB
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  testCase       TestCase @relation(fields: [testCaseId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([testCaseId, revisionNumber])
+  @@index([testCaseId, createdAt])
 }
 
 model ValidationReport {

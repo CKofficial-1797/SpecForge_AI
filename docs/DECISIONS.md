@@ -49,6 +49,14 @@ Labels distinguish approved requirements, implementation defaults, and open ques
 - Acceptance criteria are separate version-bound records and start as drafts. Each criterion requires individual review. Unresolved criteria cannot be approved; older approved criteria remain intact and are labeled historical when a newer requirement version exists.
 - Acceptance generation is blocked until outstanding questions are handled and answers for the current version have been incorporated into an approved refinement. Criteria come only from the canonical version and do not receive clarification answers that are not yet part of it.
 
+## Phase 6 test generation decisions
+
+- Test cases are generated only from database-selected resolved acceptance criteria whose status is `APPROVED` and whose source requirement version is current. Unsupported criterion references are rejected; PostgreSQL composite foreign keys preserve the exact criterion, requirement version, and generation-run relationship.
+- Test cases begin as drafts. Human approval is separate from AI generation and deterministic validation. Edits are allowed only on drafts and preserve the prior content in revision snapshots. Historical cases remain traceable and cannot be approved.
+- The Phase 4 Ollama client is reused. No second provider, model installation, live model requirement, or hardcoded fixture output was added. Mock responses are used only in tests.
+- The deterministic validator checks structural completeness, duplicate content, source state/version, duplicate test data names, expected-result wording, and unsupported numeric values. Lexical grounding is only a conservative review signal; it cannot prove semantic correctness, so warnings remain for people to assess.
+- Context and output sizes are bounded. Generation history records safe failure status and error codes; AI unavailability never creates fabricated cases.
+
 ## Open questions
 
 - What production deployment target and secret-management approach should be supported?

@@ -6,6 +6,7 @@ import { RequirementForm } from "../components/RequirementForm";
 import { RequestState } from "../components/RequestState";
 import { ValidationReportView } from "../components/ValidationReportView";
 import { RefinementWorkflow } from "../components/RefinementWorkflow";
+import { TestCaseWorkflow } from "../components/TestCaseWorkflow";
 import { ApiRequestError } from "../services/api";
 import { getProject } from "../services/projects";
 import {
@@ -510,6 +511,10 @@ export function RequirementDetailPage() {
               currentVersion={item.data.currentVersion}
             />
           </section>
+          <TestCaseWorkflow
+            requirementId={requirementId}
+            currentVersion={item.data.currentVersion}
+          />
           <div className="section-heading">
             <div>
               <h2>Version history</h2>

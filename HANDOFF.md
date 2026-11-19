@@ -3,15 +3,16 @@
 ## Project and phase
 
 - **Project:** SpecForge — From Requirements to Reliable Software.
-- **Current phase:** Phase 5 clarification, refinement, and acceptance-criteria implementation complete; live Ollama execution remains unverified.
+- **Current phase:** Phase 6 test case generation and validation implemented; live Ollama execution remains unverified.
 - **Last updated:** 2026-11-20.
-- **Objective:** Add explainable, reproducible requirement validation, saved versioned reports, APIs, and a review UI.
+- **Objective:** Build traceable requirement quality workflows through AI-assisted, human-reviewed test case drafts.
 - **Branch and remote:** `main`; `origin` is `https://github.com/CKofficial-1797/SpecForge_AI.git`.
 - **Phase 1 commit:** `85acb98 chore: initialize project foundation`.
 - **Phase 2 commit:** `19134a7 feat: add project and requirement management`, pushed to `origin/main` with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`.
 - **Phase 3 commit:** `2d0c7fb feat: add deterministic requirement validation`, pushed to `origin/main`.
 - **Phase 4 commit:** `66212e2 feat: add local AI requirement analysis`, pushed to `origin/main` with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`.
-- **Current Git status:** Phase 5 changes are uncommitted on `main`. `HANDOFF.md` also contains a pre-existing staged Phase 4 push-status correction that was preserved from the previous turn. No Phase 5 commit or push has been made.
+- **Phase 5 commit:** `5847a3a feat: add clarification and acceptance criteria workflows`, pushed to `origin/main` with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`.
+- **Current Git status:** Phase 6 changes are uncommitted on `main`. No Phase 6 commit or push has been made.
 
 ## Previous phase history
 
@@ -52,6 +53,17 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 - Migration: `20261120143000_phase5_clarification_refinement_criteria`, applied to local `specforge` and isolated `specforge_test` databases.
 - Refinement prompt version `1.0.0`; acceptance criteria prompt version `1.0.0`. No local model is configured, so generation was verified through injected mocks, not a real Ollama run.
 
+## Phase 6 implementation
+
+- Reused the Phase 4 `OllamaClient`; no new provider or dependency was added. Test prompt version and schema version are `1.0.0`.
+- Added bounded database-built context from only resolved, approved acceptance criteria for the current requirement version. Archived requirements are rejected; context is limited to 30 criteria and 32 KB. The model receives only requirement ID/version metadata and approved criterion contents. Model output is strict JSON, limited to 48 KB / 60 test cases, and checked against supplied criterion IDs, unsupported scenario categories, invented numeric claims, unsupported concrete test data, and duplicate case content.
+- Added deterministic test-case findings for required fields and meaningful steps, expected-result grounding, unexpected numerical claims, duplicate test data names, duplicate cases, approved criterion state, and exact current requirement version. Errors block approval; warnings are retained for human review.
+- Added test generation run history (source criterion IDs/version, model, prompt, status, limitations, safe error code, duration), draft test cases, and JSON revision snapshots. Composite database foreign keys bind each case to its source criterion, exact requirement version, and generation run. Case edits snapshot prior values and are allowed only while draft.
+- Added transactional approval/rejection transitions. Approval locks the requirement and case, confirms the generation run succeeded, validates criteria and current version, and rejects deterministic errors. Reviewer identity remains null because authentication is not implemented.
+- Added API endpoints for generation, listing, generation history, detail, draft edit, validation, approval/rejection, and revision history. Added a Test Cases section on the requirement detail screen with approved criteria, Ollama availability, generation history, traceability, findings, draft editing, and human review.
+- Migration: `20261121100000_phase6_test_case_generation`.
+- Live Ollama inference remains unverified because Ollama is not installed/configured. The successful generation paths were exercised with test-only mock fixtures.
+
 ## Known limitations
 
 - Vague-language, measurability, actor/action, outcome, and failure/boundary checks are conservative heuristics. They may miss issues or raise warnings that need human judgment; they are not proof of requirement quality.
@@ -59,6 +71,7 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 - Conflict detection supports only explicit authentication and session-duration patterns. It does not detect arbitrary semantic contradictions. Detected conflicts are potential conflicts and require human review.
 - Backend health reports process status and does not query PostgreSQL.
 - Phase 3 remote CI has not yet been verified through a GitHub Actions run.
+- Deterministic expected-result grounding uses number checks and conservative lexical overlap. It cannot prove semantic correctness; warnings require human review.
 
 ## Validation results
 
@@ -94,6 +107,19 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 - `git diff --check`: passed; only Git's routine CRLF normalization warnings were reported.
 - Live Ollama execution remains unverified; ordinary tests use injected mock clients.
 
+## Phase 6 validation results
+
+- Prior-phase baseline `npm run test`: frontend 5 and backend 39 tests passed after rerunning with local socket access.
+- Prior-phase integration baseline against isolated `specforge_test`: 6 files, 15 tests passed.
+- `npm run test`: passed (frontend 4 files / 9 tests; backend 14 files / 49 tests). The two API tests requiring local sockets were run with local socket access.
+- `npm run test:integration --workspace backend` with `TEST_DATABASE_URL` pointing at isolated `specforge_test`: passed (7 files / 19 tests).
+- Phase 6 migration `20261121100000_phase6_test_case_generation` applied to both local `specforge` and isolated `specforge_test` databases.
+- `npm run typecheck`, `npm run lint`, `npm run build`, and `npm run format:check`: passed.
+- `npx prisma validate --schema prisma/schema.prisma` and `docker compose config --quiet`: passed.
+- `git diff --check`: passed; Git emitted only routine LF-to-CRLF normalization warnings.
+- Docker image build and GitHub Actions were not run for Phase 6.
+- Ollama remains unavailable; there is no claim of real model inference.
+
 ## Relevant files
 
 - Engine, rules, contract, routes, and service: `backend/src/modules/requirement-validation/`.
@@ -101,9 +127,10 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 - Integration tests: `backend/tests/integration/validation.test.ts`.
 - UI and API client: `frontend/src/components/ValidationReportView.tsx`, `frontend/src/components/ProjectValidationSummary.tsx`, `frontend/src/pages/RequirementDetailPage.tsx`, `frontend/src/pages/ProjectDetailPage.tsx`, `frontend/src/services/validation.ts`.
 - Schema/migrations: `prisma/schema.prisma`, `prisma/migrations/20261119185544_phase3_validation_reports/`, `prisma/migrations/20261119191551_phase3_validation_report_version_fk/`.
+- Test generation: `backend/src/modules/test-cases/`, `backend/tests/integration/test-cases.test.ts`, `frontend/src/components/TestCaseWorkflow.tsx`, `frontend/src/services/testCases.ts`, `docs/TEST_CASE_GENERATION.md`.
 
 ## Git and next steps
 
-- Current branch is `main`, tracking `origin/main`; Phase 4 commit is `66212e2`. Phase 5 changes are local and uncommitted. The pre-existing staged `HANDOFF.md` correction is preserved.
-- Proposed Phase 5 commit: `feat: add clarification and acceptance criteria workflows`. Do not commit or push without explicit approval.
-- **Phase 6 starting point:** the reviewed Phase 5 implementation after this commit is approved. Do not start Phase 6 unless explicitly instructed.
+- Current branch is `main`, tracking `origin/main` at Phase 5 commit `5847a3a`; Phase 6 changes are local and uncommitted.
+- Proposed Phase 6 commit: `feat: add AI-assisted test case generation and review`. Do not commit or push without explicit approval.
+- **Phase 7 starting point:** the reviewed Phase 6 implementation after this commit is approved. Do not start Phase 7 unless explicitly instructed.

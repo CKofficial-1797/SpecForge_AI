@@ -932,6 +932,48 @@ tbody tr:last-child td {
 .gwt-row p {
   overflow-wrap: anywhere;
 }
+.test-case-section {
+  margin-top: 24px;
+}
+.test-case-history,
+.test-case-source,
+.test-validation-findings {
+  margin: 12px 0;
+  padding: 14px;
+  border: 1px solid #e1e7e3;
+  border-radius: 12px;
+  background: #fff;
+}
+.test-case-history p,
+.test-case-source p {
+  margin: 5px 0;
+}
+.test-case-edit {
+  display: grid;
+  gap: 10px;
+  max-width: 720px;
+  margin: 14px 0;
+}
+.test-case-edit label {
+  display: grid;
+  gap: 5px;
+  font-weight: 600;
+}
+.test-case-edit input,
+.test-case-edit textarea {
+  border: 1px solid #d9e0dc;
+  border-radius: 8px;
+  padding: 9px 10px;
+  color: inherit;
+  font: inherit;
+}
+.test-case-card ol,
+.test-case-card ul {
+  padding-left: 22px;
+}
+.test-validation-findings p {
+  margin: 7px 0;
+}
 @media (max-width: 680px) {
   .app-shell {
     grid-template-columns: 1fr;
