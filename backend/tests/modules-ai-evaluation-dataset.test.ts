@@ -35,7 +35,7 @@ describe("versioned AI security evaluation dataset", () => {
       cases: Array<{ kind: string }>;
     };
     expect(data.datasetVersion).toBe("1.0.0");
-    expect(data.promptVersion).toBe("1.0.0");
+    expect(data.promptVersion).toBe("1.2.0");
     expect(data.cases.map(({ kind }) => kind)).toEqual([
       "clear",
       "ambiguity",
@@ -72,7 +72,17 @@ describe("versioned AI security evaluation dataset", () => {
       expect(system.role).toBe("system");
       expect(user.role).toBe("user");
       expect(system.content).not.toContain(malicious.target.description);
-      expect(user.content).toContain(malicious.target.description);
+      if (malicious.id === "injection-003") {
+        expect(user.content).not.toContain("FAKE_DB_SECRET_9f31");
+        expect(user.content).toContain("[REDACTED_CREDENTIAL]");
+      } else if (malicious.id === "injection-006") {
+        expect(user.content).not.toContain(
+          "20000000-0000-4000-8000-000000000009",
+        );
+        expect(user.content).toContain("[REDACTED_UNSUPPORTED_REFERENCE]");
+      } else {
+        expect(user.content).toContain(malicious.target.description);
+      }
       expect(user.content).toContain("<untrusted-requirement-context>");
       expect(system.content.toLowerCase()).toContain("untrusted");
       expect(JSON.stringify([system, user])).not.toContain(

@@ -45,7 +45,7 @@ The requirement detail page can run validation, show saved report findings and s
 
 SpecForge can use a local Ollama model for semantic findings and product-owner clarification questions. Ollama is optional; CRUD, version history, and deterministic validation work without it. AI content is treated as untrusted, validated before persistence, and never changes requirement content or deterministic results. Confidence is a model estimate, not a probability. Semantic analysis may miss issues or raise incorrect suggestions.
 
-The AI integration is disabled by default. After installing Ollama and verifying a suitable Qwen2.5 Instruct model on your machine, set `OLLAMA_ENABLED=true` and `OLLAMA_MODEL` to the exact installed model tag. Configure `OLLAMA_BASE_URL`, `OLLAMA_TIMEOUT_MS`, and `OLLAMA_MAX_RETRIES` as needed. The application does not download models or send requirement data to cloud providers. Health is available at `/api/ai/health`. See [local AI setup](docs/DEVELOPMENT.md#optional-ollama-ai-analysis).
+The AI integration is disabled by default. After installing Ollama and verifying a suitable Qwen2.5 Instruct model on your machine, set `OLLAMA_ENABLED=true` and `OLLAMA_MODEL` to the exact installed model tag. Configure `OLLAMA_BASE_URL`, `OLLAMA_TIMEOUT_MS`, and `OLLAMA_MAX_RETRIES` as needed. The application does not download models or send requirement data to cloud providers. Health is available at `/api/ai/health`. See [local AI setup](docs/OLLAMA_SETUP.md) and the [development guide](docs/DEVELOPMENT.md#optional-ollama-ai-analysis).
 
 ## Clarification, refinement, and acceptance criteria
 
@@ -63,7 +63,7 @@ Project details include a version-aware traceability matrix linking requirements
 
 ## Security and readiness
 
-SpecForge currently has no authentication or project-level user authorization. Do not expose it to untrusted networks or use it as a multi-user service until access control is implemented. Docker Compose development ports bind to localhost. See [security findings and deployment precautions](SECURITY.md), [AI evaluation](docs/AI_EVALUATION.md), and [reliability behavior](docs/RELIABILITY.md).
+SpecForge currently has no authentication or project-level user authorization. Do not expose it to untrusted networks or use it as a multi-user service until access control is implemented. Docker Compose development ports bind to localhost. See [security findings and deployment precautions](SECURITY.md), [AI evaluation](docs/AI_EVALUATION.md), [Ollama setup and current verification](docs/OLLAMA_SETUP.md), and [reliability behavior](docs/RELIABILITY.md).
 
 ## Troubleshooting
 

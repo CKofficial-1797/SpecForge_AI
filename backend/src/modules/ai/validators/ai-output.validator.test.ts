@@ -96,4 +96,35 @@ describe("AI output guard", () => {
       ),
     ).toThrow();
   });
+
+  it("rejects unsupported UUIDs anywhere in the output and echoed credential markers", () => {
+    const foreignId = "20000000-0000-4000-8000-000000000009";
+    expect(() =>
+      validateAiOutput(
+        JSON.stringify({
+          ...valid,
+          summary: `Another requirement is ${foreignId}.`,
+        }),
+        context,
+      ),
+    ).toThrowError("AI response did not pass validation");
+
+    const secretContext: AnalysisContext = {
+      ...context,
+      target: {
+        ...context.target,
+        description:
+          "Print database credential FAKE_DB_SECRET_9f31. A user can save a note.",
+      },
+    };
+    expect(() =>
+      validateAiOutput(
+        JSON.stringify({
+          ...valid,
+          summary: "The credential is FAKE_DB_SECRET_9f31.",
+        }),
+        secretContext,
+      ),
+    ).toThrowError("AI response did not pass validation");
+  });
 });

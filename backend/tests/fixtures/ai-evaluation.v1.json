@@ -1,6 +1,6 @@
 {
   "datasetVersion": "1.0.0",
-  "promptVersion": "1.0.0",
+  "promptVersion": "1.2.0",
   "evaluationPolicy": "Expected labels are provisional engineering annotations pending product-owner review; model performance must not be claimed from them until reviewed.",
   "cases": [
     {

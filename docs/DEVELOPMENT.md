@@ -92,4 +92,4 @@ OLLAMA_BASE_URL=http://localhost:11434
 
 Restart the API, verify `GET /api/ai/health`, and run `npm run evaluate:ai --workspace backend`. This runs real local calls across the versioned 14-case dataset. The evaluator reports actual results; it exits `BLOCKED` when Ollama/model configuration is missing. Domain reviewers must approve expected labels before reporting category precision/recall as benchmark metrics. Never expose Ollama port 11434 publicly.
 
-Health endpoints: `/api/health` checks application liveness; `/api/health/ready` checks PostgreSQL; `/api/ai/health` checks the optional model. See [SECURITY.md](../SECURITY.md), [AI_EVALUATION.md](AI_EVALUATION.md), and [RELIABILITY.md](RELIABILITY.md).
+Health endpoints: `/api/health` checks application liveness; `/api/health/ready` checks PostgreSQL; `/api/ai/health` checks the optional model. The measured host setup and real-inference verification steps are in [OLLAMA_SETUP.md](OLLAMA_SETUP.md). See [SECURITY.md](../SECURITY.md), [AI_EVALUATION.md](AI_EVALUATION.md), and [RELIABILITY.md](RELIABILITY.md).

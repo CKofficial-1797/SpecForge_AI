@@ -3,7 +3,7 @@
 ## Project and phase
 
 - **Project:** SpecForge — From Requirements to Reliable Software.
-- **Current phase:** Phase 8 security, reliability, and AI evaluation hardening implemented locally; awaiting user review and commit approval.
+- **Current phase:** Pre-Phase 9 readiness remediation; Phase 8 is committed and pushed, with remediation verification underway.
 - **Last updated:** 2026-11-20.
 - **Objective:** Build traceable requirement quality workflows through AI-assisted, human-reviewed test case drafts.
 - **Branch and remote:** `main`; `origin` is `https://github.com/CKofficial-1797/SpecForge_AI.git`.
@@ -13,7 +13,7 @@
 - **Phase 4 commit:** `66212e2 feat: add local AI requirement analysis`, pushed to `origin/main` with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`.
 - **Phase 5 commit:** `5847a3a feat: add clarification and acceptance criteria workflows`, pushed to `origin/main` with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`.
 - **Phase 6 commit:** `f45bc0d feat: add AI-assisted test case generation and review`, pushed to `origin/main` with author email `sanjaygorain1797@gmail.com`.
-- **Current Git status:** Phase 8 changes are uncommitted on `main` at `b7a98b0`; do not commit or push before explicit approval.
+- **Current Git status:** Phase 8 is pushed as `5c21d29`; remediation documentation changes are uncommitted on `main`. Do not commit or push without explicit approval.
 
 ## Previous phase history
 
@@ -154,9 +154,9 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 
 ## Git and next steps
 
-- Current branch is `main`, tracking `origin/main` at Phase 7 commit `b7a98b0`.
-- Phase 7 is committed and pushed; the old references to uncommitted Phase 7 at `f45bc0d` are superseded by the current Git state.
-- Proposed Phase 8 commit: `security: harden AI evaluation and runtime controls`. Do not commit or push before explicit approval.
+- Current branch is `main`, tracking `origin/main` at Phase 8 commit `5c21d29`.
+- Phase 7 is committed and pushed at `b7a98b0`.
+- Phase 8 commit: `5c21d29 security: harden AI evaluation and runtime controls`, authored as `sanjaygorain1797@gmail.com`.
 - Phase 8 did not add database migrations or schema changes.
 
 ## Phase 8 implementation
@@ -166,7 +166,7 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 - Added a synthetic evaluation dataset v1.0.0 with 14 cases and prompt v1.0.0, including seven distinct prompt-injection examples. Added a real-model evaluator that uses production output validation and reports BLOCKED if Ollama is disabled/unavailable; no mocked output is counted as model performance.
 - Added `SECURITY.md`, `docs/AI_EVALUATION.md`, `docs/RELIABILITY.md`, and updated README, architecture, decisions, and development setup docs.
 - Authentication and project authorization were explicitly deferred by the user to Phase 9. The API remains open by resource UUID; the product is not ready for public or multi-user deployment. Reviewer identity is unavailable until auth is implemented.
-- Ollama is not installed/configured on this machine. No model is selected as a verified default; AI remains disabled until a model is installed and tested. The measured host reports ~15.3 GiB RAM and an RTX 3050 Laptop GPU with 6 GiB, but this is not a substitute for a real local inference run. Dataset labels remain provisional pending domain review.
+- Ollama is not installed/configured on this machine. AI remains disabled. The measured host reports ~15.3 GiB RAM and an RTX 3050 Laptop GPU with 6 GiB, but this is not a substitute for real local inference. The user approved downloading Qwen2.5 3B Instruct after Ollama is installed. Dataset labels remain provisional pending domain review.
 - `npm audit --omit=dev` on 2026-11-20 found three high findings in the dependency path for `effect@3.20.0` through Prisma 7.10.1 / `@prisma/config`, advisory GHSA-7589-6fvf-x4pw. npm's automatic fix proposes the breaking Prisma 6.12.0 downgrade. An override attempt did not change the lockfile; no downgrade was applied. See SEC-010 in `SECURITY.md`.
 
 ## Phase 8 verification
@@ -175,13 +175,37 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 - `npm run typecheck`, `npm run lint`, and `npm run build`: passed.
 - `npm run format:check`: passed after formatting the evaluation script and app middleware setup.
 - `docker compose config --quiet` and `docker compose build`: passed for backend and frontend images. Build logs also reported the same three HIGH npm advisories in development and production dependency installs.
-- Integration tests were attempted but not completed: required `TEST_DATABASE_URL` targeting isolated `specforge_test` was not configured in this run. The attempt stopped in setup before connecting to a database. No migration/schema changes were introduced.
+- At initial Phase 8 verification, integration tests were blocked by missing `TEST_DATABASE_URL`; see the completed Pre-Phase 9 remediation below.
 - `npm run evaluate:ai --workspace backend`: correctly reported BLOCKED because AI is disabled and Ollama/model is unavailable; real inference and model quality remain unverified.
 - `npm audit --omit=dev`: failed with three HIGH advisory paths (one vulnerable package); see SEC-010. Do not release until resolved.
-- Phase 8 starting point was clean `main` at pushed `b7a98b0 feat: add end-to-end traceability and coverage overview`.
+- Phase 8 starting point was clean `main` at pushed `b7a98b0 feat: add end-to-end traceability and coverage overview`; Phase 8 was later committed and pushed as `5c21d29`.
 
 ## Phase 9 starting point
 
 - Begin with authentication and project-level authorization design (explicitly deferred blocker), including reviewer identity and access policies for every resource and generation/approval action.
-- Also resolve SEC-010 without an unreviewed Prisma major downgrade, then rerun full integration, container, security, and live Ollama verification as appropriate.
-- Keep Phase 8 changes uncommitted until the user explicitly approves the proposed commit.
+- Carry forward SEC-001 authentication/access-control work and reviewer identity as Phase 9 blockers; do not treat this remediation as implementing Phase 9.
+- SEC-010 remains open pending a compatible Prisma/Effect release or an explicitly reviewed workaround.
+
+## Pre-Phase 9 readiness remediation (2026-11-20)
+
+### Ollama and real model
+
+- Host: Windows 10 Home Single Language 26H2, build 26300; 15.3 GiB RAM (2.26 GiB available at inspection); RTX 3050 Laptop GPU, 6 GiB VRAM; 116.4 GiB free disk.
+- Ollama installed by the user: version 0.40.16. Downloaded and listed `qwen2.5:3b-instruct`, digest `357c53fb659c`, approximately 1.9 GB. Direct local JSON-mode inference parsed successfully; cold-start latency was 94,772 ms. Backend timeout default increased from 90,000 to 180,000 ms.
+- Live application AI health reported enabled/available/modelAvailable true. A disposable requirement analysis succeeded in 9,317 ms, saved against source version 1 with prompt 1.2.0, and was retrieved from history. Clarification generation/import and answer recording succeeded.
+- The 14-case real evaluator returned 14 inference responses: 11 passed structured validation (78.6%), three were rejected (`ambiguous-001` schema invalid, `injection-002` and `injection-006` ungrounded evidence), and planted-marker echo was 0/14. Mean 6,879 ms; p95 9,214 ms. Evaluator exit 1 is expected because invalid output cases remain.
+- Real refinement, acceptance-criteria, and test-case generation failed validation (`REFINEMENT_OUTPUT_INVALID`, `ACCEPTANCE_OUTPUT_INVALID`, `TEST_GENERATION_OUTPUT_INVALID`). No invalid outputs were persisted as successful. A disposable test criterion fixture enabled the test-case path; no generated artifact was approved. Docker-to-host Ollama networking and an induced HTTP timeout were not verified.
+
+### PostgreSQL and regression
+
+- `TEST_DATABASE_URL` pointed to `postgresql://specforge:specforge_local@localhost:5432/specforge_test?schema=public`. No destructive reset was used. All 7 migrations were current; `migrate deploy` reported no pending migrations.
+- Integration suite: PASS, 8 files / 22 tests. Per-suite cleanup is scoped to generated project IDs. Disposable live AI workflow records and fixture criteria were manually removed from `specforge_test`, and project/requirement counts for those IDs verified zero.
+- PASS: `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test` (frontend 5 files / 10 tests; backend 17 files / 63 tests), `npm run build`, `npx prisma validate --schema prisma/schema.prisma`, `docker compose config --quiet`, and `docker compose build`.
+- Security/reliability unit regressions are included in the backend suite. Live AI health and analysis persistence/history were checked over loopback. The five workflow outcomes are in `docs/AI_EVALUATION.md`.
+
+### Prisma advisory and remaining blockers
+
+- `npm audit --omit=dev` and full `npm audit` remain FAIL: three HIGH advisory paths to `effect@3.20.0` via Prisma 7.10.1 / `@prisma/config`; GHSA-7589-6fvf-x4pw fixes upstream at Effect 3.22.1. No compatible Prisma 7 fix was identified. Per user direction, current Prisma is retained pending a compatible fix; no downgrade, RC upgrade, or override was made. SEC-010 remains open.
+- Authentication and project authorization remain deferred to Phase 9. Real model generation reliability remains insufficient for downstream workflows. Docker-to-host Ollama and an actual request-timeout scenario are unverified.
+- Current Git status: remediation changes are uncommitted on `main`; no commit or push was performed. Suggested commit: `fix: record pre-phase-9 verification and harden AI output guards`.
+- Readiness: **NOT READY FOR PHASE 9** because downstream real AI workflows remain invalid and SEC-010 is unresolved. Stop here; do not begin Phase 9 until directed.

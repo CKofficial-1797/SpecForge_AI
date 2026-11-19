@@ -24,7 +24,7 @@ export const envSchema = z.object({
     .int()
     .min(1000)
     .max(300000)
-    .default(90000),
+    .default(180000),
   OLLAMA_MAX_RETRIES: z.coerce.number().int().min(0).max(3).default(1),
   OLLAMA_ENABLED: z
     .enum(["true", "false"])

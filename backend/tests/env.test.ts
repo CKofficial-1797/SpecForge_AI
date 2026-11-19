@@ -7,7 +7,10 @@ describe("environment configuration", () => {
       DATABASE_URL: "postgresql://specforge:secret@localhost:5432/specforge",
     });
     expect(result.success).toBe(true);
-    if (result.success) expect(result.data.PORT).toBe(3000);
+    if (result.success) {
+      expect(result.data.PORT).toBe(3000);
+      expect(result.data.OLLAMA_TIMEOUT_MS).toBe(180000);
+    }
   });
 
   it("rejects a missing or invalid database URL", () => {
