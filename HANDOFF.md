@@ -3,15 +3,15 @@
 ## Project and phase
 
 - **Project:** SpecForge — From Requirements to Reliable Software.
-- **Current phase:** Phase 4 implementation complete; local Ollama execution remains unverified because Ollama is not installed/configured.
+- **Current phase:** Phase 5 clarification, refinement, and acceptance-criteria implementation complete; live Ollama execution remains unverified.
 - **Last updated:** 2026-11-20.
 - **Objective:** Add explainable, reproducible requirement validation, saved versioned reports, APIs, and a review UI.
 - **Branch and remote:** `main`; `origin` is `https://github.com/CKofficial-1797/SpecForge_AI.git`.
 - **Phase 1 commit:** `85acb98 chore: initialize project foundation`.
 - **Phase 2 commit:** `19134a7 feat: add project and requirement management`, pushed to `origin/main` with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`.
 - **Phase 3 commit:** `2d0c7fb feat: add deterministic requirement validation`, pushed to `origin/main`.
-- **Phase 4 commit:** Not created. Proposed message: `feat: add local AI requirement analysis`. Do not commit until the user explicitly approves.
-- **Current Git status:** Phase 4 changes are uncommitted. Update this section with final `git status` before approval.
+- **Phase 4 commit:** `66212e2 feat: add local AI requirement analysis`, pushed to `origin/main` with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`.
+- **Current Git status:** Phase 5 changes are uncommitted on `main`. `HANDOFF.md` also contains a pre-existing staged Phase 4 push-status correction that was preserved from the previous turn. No Phase 5 commit or push has been made.
 
 ## Previous phase history
 
@@ -41,6 +41,16 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 - Added separate semantic AI section and health state on requirement detail. Confidence is labeled as a model estimate. Analysis remains synchronous and request timeout is bounded by `OLLAMA_TIMEOUT_MS`.
 - Migration: `20261120103000_phase4_ai_analysis`.
 - Mocked client/output guard tests added. Real model execution is unverified because Ollama is unavailable.
+
+## Phase 5 implementation
+
+- Added `ClarificationQuestion` and append-only `ClarificationAnswer` revision models. Questions are source-analysis-bound and requirement-bound by composite FK. Same-analysis normalized question fingerprints make repeated imports idempotent while identical wording from another analysis remains traceable. A partial unique index enforces one current answer; submit/edit/dismiss use row locks and explicit state transitions.
+- Added refinement draft persistence tied to the exact base requirement version and source analysis. The versioned prompt uses original and same-project non-archived version context plus latest answered Q/A pairs only. The application adds open/dismissed questions to saved unresolved output, validates every applied question/answer pair, and blocks approval when assumptions or unresolved questions remain.
+- Refactored requirement update into a transaction helper shared by normal edits and draft approval. Approval locks the requirement and draft, rejects stale/no-op drafts, creates a new immutable content version, approves the draft, and supersedes competing pending drafts in one transaction. Rejection never changes requirement content. `reviewedBy` is null because authentication does not exist.
+- Added acceptance criteria generation from canonical current requirement versions, with versioned prompt, strict G/W/T schema, output size limits, deterministic duplicate fingerprints, unresolved-detail state, and source-version FKs. Clarification answers from the current version must first be incorporated by an approved refinement. Each criterion remains an individual draft until approved/rejected; unresolved or historical criteria cannot be approved. Old criteria remain stored and are marked historical on read.
+- Added clarification import/list/detail/answer/edit/dismiss APIs; refinement generation/list/detail/approve/reject APIs; and criteria generate/list/detail/approve/reject APIs. Added a requirement detail workflow section for Q/A history, refinement review, stale warnings, and individual G/W/T review.
+- Migration: `20261120143000_phase5_clarification_refinement_criteria`, applied to local `specforge` and isolated `specforge_test` databases.
+- Refinement prompt version `1.0.0`; acceptance criteria prompt version `1.0.0`. No local model is configured, so generation was verified through injected mocks, not a real Ollama run.
 
 ## Known limitations
 
@@ -74,6 +84,16 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 - Phase 4 migration applied successfully to both local `specforge` and isolated `specforge_test` databases; integration regression passed after migration.
 - No live Ollama/model verification; mocked tests passed only.
 
+## Phase 5 validation results
+
+- `npm run test`: passed (frontend 5 tests; backend 39 tests).
+- `npm run test:integration --workspace backend` on isolated `specforge_test`: passed (6 files, 15 tests), including import idempotence, same-project reference validation, answer revisions/transitions, refinement approval/rejection/stale conflict/transaction rollback, and acceptance criteria lifecycle/version history.
+- `npm run typecheck`, `npm run lint`, `npm run build`, and `npm run format:check`: passed.
+- `npx prisma validate --schema prisma/schema.prisma`: passed; Phase 5 migration applied to local `specforge` and isolated `specforge_test` databases.
+- `docker compose config --quiet` and `docker compose build`: passed for backend and frontend images.
+- `git diff --check`: passed; only Git's routine CRLF normalization warnings were reported.
+- Live Ollama execution remains unverified; ordinary tests use injected mock clients.
+
 ## Relevant files
 
 - Engine, rules, contract, routes, and service: `backend/src/modules/requirement-validation/`.
@@ -84,7 +104,6 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 
 ## Git and next steps
 
-- Current branch is `main`, tracking `origin/main`; pushed baseline is Phase 3 commit `2d0c7fb`. Phase 4 changes remain uncommitted and unpushed.
-- Proposed commit: `feat: add local AI requirement analysis`.
-- Review final diff/status and wait for explicit user approval before committing or pushing.
-- **Phase 5 starting point:** Phase 4 implementation, after the user configures/verifies a local Ollama model if they need live integration proof. Do not start Phase 5 until explicitly instructed.
+- Current branch is `main`, tracking `origin/main`; Phase 4 commit is `66212e2`. Phase 5 changes are local and uncommitted. The pre-existing staged `HANDOFF.md` correction is preserved.
+- Proposed Phase 5 commit: `feat: add clarification and acceptance criteria workflows`. Do not commit or push without explicit approval.
+- **Phase 6 starting point:** the reviewed Phase 5 implementation after this commit is approved. Do not start Phase 6 unless explicitly instructed.

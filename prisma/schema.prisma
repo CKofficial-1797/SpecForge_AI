@@ -33,6 +33,26 @@ enum AiAnalysisStatus {
   UNAVAILABLE
 }
 
+enum ClarificationStatus {
+  OPEN
+  ANSWERED
+  DISMISSED
+}
+
+enum RefinementDraftStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  SUPERSEDED
+}
+
+enum AcceptanceCriterionStatus {
+  DRAFT
+  APPROVED
+  REJECTED
+  SUPERSEDED
+}
+
 model Project {
   id           String        @id @default(uuid()) @db.Uuid
   name         String        @db.VarChar(120)
@@ -46,19 +66,22 @@ model Project {
 }
 
 model Requirement {
-  id             String               @id @default(uuid()) @db.Uuid
-  projectId      String               @db.Uuid
-  requirementKey String               @db.VarChar(80)
-  title          String               @db.VarChar(180)
-  description    String               @db.Text
-  priority       RequirementPriority  @default(MEDIUM)
-  status         RequirementStatus    @default(DRAFT)
-  currentVersion Int                  @default(1)
-  createdAt      DateTime             @default(now()) @db.Timestamptz(3)
-  updatedAt      DateTime             @updatedAt @db.Timestamptz(3)
-  project        Project              @relation(fields: [projectId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  versions       RequirementVersion[]
-  aiAnalyses     AiAnalysis[]
+  id                 String                  @id @default(uuid()) @db.Uuid
+  projectId          String                  @db.Uuid
+  requirementKey     String                  @db.VarChar(80)
+  title              String                  @db.VarChar(180)
+  description        String                  @db.Text
+  priority           RequirementPriority     @default(MEDIUM)
+  status             RequirementStatus       @default(DRAFT)
+  currentVersion     Int                     @default(1)
+  createdAt          DateTime                @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime                @updatedAt @db.Timestamptz(3)
+  project            Project                 @relation(fields: [projectId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  versions           RequirementVersion[]
+  aiAnalyses         AiAnalysis[]
+  clarifications     ClarificationQuestion[]
+  refinementDrafts   RefinementDraft[]
+  acceptanceCriteria AcceptanceCriterion[]
 
   @@unique([projectId, requirementKey])
   @@index([projectId])
@@ -67,50 +90,134 @@ model Requirement {
 }
 
 model RequirementVersion {
-  id            String              @id @default(uuid()) @db.Uuid
-  requirementId String              @db.Uuid
-  versionNumber Int
-  title         String              @db.VarChar(180)
-  description   String              @db.Text
-  priority      RequirementPriority
-  changeSummary String?             @db.VarChar(1000)
-  createdAt     DateTime            @default(now()) @db.Timestamptz(3)
-  requirement   Requirement         @relation(fields: [requirementId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  validationReports ValidationReport[]
+  id                 String                @id @default(uuid()) @db.Uuid
+  requirementId      String                @db.Uuid
+  versionNumber      Int
+  title              String                @db.VarChar(180)
+  description        String                @db.Text
+  priority           RequirementPriority
+  changeSummary      String?               @db.VarChar(1000)
+  createdAt          DateTime              @default(now()) @db.Timestamptz(3)
+  requirement        Requirement           @relation(fields: [requirementId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  validationReports  ValidationReport[]
   aiAnalyses         AiAnalysis[]
+  refinementDrafts   RefinementDraft[]
+  acceptanceCriteria AcceptanceCriterion[]
 
   @@unique([requirementId, versionNumber])
 }
 
 model AiAnalysis {
-  id                    String          @id @default(uuid()) @db.Uuid
-  requirementId         String          @db.Uuid
-  requirementVersion    Int
-  modelName             String?         @db.VarChar(120)
-  promptVersion         String          @db.VarChar(40)
-  schemaVersion         String          @db.VarChar(40)
-  ruleSetVersion        String?         @db.VarChar(40)
-  status                AiAnalysisStatus @default(PENDING)
-  outputData            Json?           @db.JsonB
-  contextVersions       Json            @db.JsonB
-  errorCode             String?         @db.VarChar(80)
-  createdAt             DateTime        @default(now()) @db.Timestamptz(3)
-  completedAt           DateTime?       @db.Timestamptz(3)
-  durationMs            Int?
-  requirement           Requirement     @relation(fields: [requirementId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  requirementVersionRef RequirementVersion @relation(fields: [requirementId, requirementVersion], references: [requirementId, versionNumber], onDelete: Restrict, onUpdate: Cascade)
+  id                     String                  @id @default(uuid()) @db.Uuid
+  requirementId          String                  @db.Uuid
+  requirementVersion     Int
+  modelName              String?                 @db.VarChar(120)
+  promptVersion          String                  @db.VarChar(40)
+  schemaVersion          String                  @db.VarChar(40)
+  ruleSetVersion         String?                 @db.VarChar(40)
+  status                 AiAnalysisStatus        @default(PENDING)
+  outputData             Json?                   @db.JsonB
+  contextVersions        Json                    @db.JsonB
+  errorCode              String?                 @db.VarChar(80)
+  createdAt              DateTime                @default(now()) @db.Timestamptz(3)
+  completedAt            DateTime?               @db.Timestamptz(3)
+  durationMs             Int?
+  requirement            Requirement             @relation(fields: [requirementId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  requirementVersionRef  RequirementVersion      @relation(fields: [requirementId, requirementVersion], references: [requirementId, versionNumber], onDelete: Restrict, onUpdate: Cascade)
+  clarificationQuestions ClarificationQuestion[] @relation("AnalysisClarifications")
+  refinementDrafts       RefinementDraft[]       @relation("AnalysisRefinementDrafts")
 
+  @@unique([id, requirementId])
   @@index([requirementId, requirementVersion, createdAt])
   @@index([status, createdAt])
 }
 
+model ClarificationQuestion {
+  id                    String                @id @default(uuid()) @db.Uuid
+  requirementId         String                @db.Uuid
+  sourceAnalysisId      String                @db.Uuid
+  question              String                @db.VarChar(500)
+  reason                String                @db.VarChar(800)
+  relatedRequirementIds Json                  @db.JsonB
+  questionFingerprint   String                @db.Char(64)
+  status                ClarificationStatus   @default(OPEN)
+  createdAt             DateTime              @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime              @updatedAt @db.Timestamptz(3)
+  requirement           Requirement           @relation(fields: [requirementId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  sourceAnalysis        AiAnalysis            @relation("AnalysisClarifications", fields: [sourceAnalysisId, requirementId], references: [id, requirementId], onDelete: Restrict, onUpdate: Cascade)
+  answers               ClarificationAnswer[]
+
+  @@unique([requirementId, sourceAnalysisId, questionFingerprint])
+  @@index([requirementId, status, createdAt])
+}
+
+model ClarificationAnswer {
+  id             String                @id @default(uuid()) @db.Uuid
+  questionId     String                @db.Uuid
+  answer         String                @db.VarChar(5000)
+  revisionNumber Int
+  isCurrent      Boolean               @default(true)
+  answeredAt     DateTime              @default(now()) @db.Timestamptz(3)
+  question       ClarificationQuestion @relation(fields: [questionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([questionId, revisionNumber])
+  @@index([questionId, isCurrent, answeredAt])
+}
+
+model RefinementDraft {
+  id                     String                @id @default(uuid()) @db.Uuid
+  requirementId          String                @db.Uuid
+  baseRequirementVersion Int
+  sourceAnalysisId       String                @db.Uuid
+  proposedTitle          String                @db.VarChar(180)
+  proposedDescription    String                @db.Text
+  changeSummary          String                @db.VarChar(1000)
+  structuredOutput       Json                  @db.JsonB
+  promptVersion          String                @db.VarChar(40)
+  status                 RefinementDraftStatus @default(PENDING_REVIEW)
+  createdAt              DateTime              @default(now()) @db.Timestamptz(3)
+  reviewedAt             DateTime?             @db.Timestamptz(3)
+  reviewedBy             String?               @db.VarChar(120)
+  requirement            Requirement           @relation(fields: [requirementId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  baseVersion            RequirementVersion    @relation(fields: [requirementId, baseRequirementVersion], references: [requirementId, versionNumber], onDelete: Restrict, onUpdate: Cascade)
+  sourceAnalysis         AiAnalysis            @relation("AnalysisRefinementDrafts", fields: [sourceAnalysisId, requirementId], references: [id, requirementId], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([requirementId, baseRequirementVersion, status, createdAt])
+}
+
+model AcceptanceCriterion {
+  id                       String                    @id @default(uuid()) @db.Uuid
+  requirementId            String                    @db.Uuid
+  sourceRequirementVersion Int
+  title                    String                    @db.VarChar(180)
+  given                    String                    @db.VarChar(2000)
+  when                     String                    @db.VarChar(2000)
+  then                     String                    @db.VarChar(2000)
+  isResolved               Boolean                   @default(true)
+  notes                    Json                      @db.JsonB
+  fingerprint              String                    @db.Char(64)
+  generationSource         String                    @default("OLLAMA") @db.VarChar(40)
+  modelName                String?                   @db.VarChar(120)
+  promptVersion            String                    @db.VarChar(40)
+  status                   AcceptanceCriterionStatus @default(DRAFT)
+  createdAt                DateTime                  @default(now()) @db.Timestamptz(3)
+  updatedAt                DateTime                  @updatedAt @db.Timestamptz(3)
+  reviewedAt               DateTime?                 @db.Timestamptz(3)
+  reviewedBy               String?                   @db.VarChar(120)
+  requirement              Requirement               @relation(fields: [requirementId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  sourceVersion            RequirementVersion        @relation(fields: [requirementId, sourceRequirementVersion], references: [requirementId, versionNumber], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([requirementId, sourceRequirementVersion, fingerprint])
+  @@index([requirementId, sourceRequirementVersion, status, createdAt])
+}
+
 model ValidationReport {
-  id                String      @id @default(uuid()) @db.Uuid
-  requirementId     String      @db.Uuid
-  requirementVersion Int
-  ruleSetVersion   String      @db.VarChar(40)
-  reportData        Json        @db.JsonB
-  createdAt         DateTime    @default(now()) @db.Timestamptz(3)
+  id                       String             @id @default(uuid()) @db.Uuid
+  requirementId            String             @db.Uuid
+  requirementVersion       Int
+  ruleSetVersion           String             @db.VarChar(40)
+  reportData               Json               @db.JsonB
+  createdAt                DateTime           @default(now()) @db.Timestamptz(3)
   requirementVersionRecord RequirementVersion @relation(fields: [requirementId, requirementVersion], references: [requirementId, versionNumber], onDelete: Restrict, onUpdate: Cascade)
 
   @@index([requirementId, requirementVersion, createdAt])

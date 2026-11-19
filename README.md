@@ -2,7 +2,7 @@
 
 **From Requirements to Reliable Software.**
 
-SpecForge is an engineering quality and requirement intelligence platform. It supports project and requirement management, immutable requirement versions, deterministic validation, and optional local AI-assisted semantic analysis. AI findings are advisory, version-bound, and shown separately from deterministic results. Acceptance-criteria generation and traceable test workflows are not implemented.
+SpecForge is an engineering quality and requirement intelligence platform. It supports project and requirement management, immutable requirement versions, deterministic validation, optional local AI-assisted semantic analysis, clarification and refinement review, and version-bound acceptance criteria. AI output remains a draft until a person explicitly approves it.
 
 ## Stack and architecture
 
@@ -46,6 +46,12 @@ The requirement detail page can run validation, show saved report findings and s
 SpecForge can use a local Ollama model for semantic findings and product-owner clarification questions. Ollama is optional; CRUD, version history, and deterministic validation work without it. AI content is treated as untrusted, validated before persistence, and never changes requirement content or deterministic results. Confidence is a model estimate, not a probability. Semantic analysis may miss issues or raise incorrect suggestions.
 
 The AI integration is disabled by default. After installing Ollama and verifying a suitable Qwen2.5 Instruct model on your machine, set `OLLAMA_ENABLED=true` and `OLLAMA_MODEL` to the exact installed model tag. Configure `OLLAMA_BASE_URL`, `OLLAMA_TIMEOUT_MS`, and `OLLAMA_MAX_RETRIES` as needed. The application does not download models or send requirement data to cloud providers. Health is available at `/api/ai/health`. See [local AI setup](docs/DEVELOPMENT.md#optional-ollama-ai-analysis).
+
+## Clarification, refinement, and acceptance criteria
+
+Import clarification questions from a successful saved AI analysis. Questions can be answered, revised with full answer history, or dismissed; dismissal never counts as an answer. A refinement proposal uses the original version and latest submitted answers, and remains separate from the canonical requirement until explicit approval. Approval checks the base version and creates the next immutable requirement version in the same transaction. Stale drafts cannot be approved.
+
+After answers have been incorporated into an approved requirement version, generate Given/When/Then acceptance criteria. Each criterion remains a draft until individually approved. Unresolved details block approval, and historical criteria retain their source version. The app has no authentication model yet, so review timestamps are recorded with `reviewedBy` unset. See the [workflow development guide](docs/DEVELOPMENT.md#phase-5-clarification-and-refinement-workflow).
 
 ## Troubleshooting
 

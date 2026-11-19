@@ -5,6 +5,7 @@ import { Modal } from "../components/Modal";
 import { RequirementForm } from "../components/RequirementForm";
 import { RequestState } from "../components/RequestState";
 import { ValidationReportView } from "../components/ValidationReportView";
+import { RefinementWorkflow } from "../components/RefinementWorkflow";
 import { ApiRequestError } from "../services/api";
 import { getProject } from "../services/projects";
 import {
@@ -490,6 +491,24 @@ export function RequirementDetailPage() {
                 No AI analyses have been saved for this requirement.
               </p>
             )}
+          </section>
+          <section
+            className="validation-section refinement-section"
+            aria-labelledby="refinement-workflow-title"
+          >
+            <div className="validation-section-heading">
+              <div>
+                <h2 id="refinement-workflow-title">Clarify and refine</h2>
+                <p>
+                  Answer product questions, review a proposed requirement
+                  change, then review acceptance criteria one at a time.
+                </p>
+              </div>
+            </div>
+            <RefinementWorkflow
+              requirementId={requirementId}
+              currentVersion={item.data.currentVersion}
+            />
           </section>
           <div className="section-heading">
             <div>

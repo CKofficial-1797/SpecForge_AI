@@ -9,6 +9,7 @@ import type {
   ListRequirementsQuery,
   UpdateRequirementInput,
 } from "./requirement.schema.js";
+import type { Prisma } from "../../generated/prisma/client.js";
 import {
   changedMetadataFields,
   changedVersionFields,
@@ -109,69 +110,77 @@ export async function updateRequirement(
   requirementId: string,
   input: UpdateRequirementInput,
 ) {
-  return prisma.$transaction(async (tx) => {
-    const locked = await tx.$queryRaw<Array<{ id: string }>>`
+  return prisma.$transaction((tx) =>
+    updateRequirementInTransaction(tx, requirementId, input),
+  );
+}
+
+export async function updateRequirementInTransaction(
+  tx: Prisma.TransactionClient,
+  requirementId: string,
+  input: UpdateRequirementInput,
+) {
+  const locked = await tx.$queryRaw<Array<{ id: string }>>`
       SELECT "id" FROM "Requirement" WHERE "id" = CAST(${requirementId} AS UUID) FOR UPDATE
     `;
-    if (locked.length === 0) {
-      throw new ApiError(404, "REQUIREMENT_NOT_FOUND", "Requirement not found");
-    }
+  if (locked.length === 0) {
+    throw new ApiError(404, "REQUIREMENT_NOT_FOUND", "Requirement not found");
+  }
 
-    const current = await tx.requirement.findUnique({
-      where: { id: requirementId },
-    });
-    if (!current) {
-      throw new ApiError(404, "REQUIREMENT_NOT_FOUND", "Requirement not found");
-    }
-    if (current.currentVersion !== input.expectedVersion) {
-      throw versionConflict(input.expectedVersion, current.currentVersion);
-    }
+  const current = await tx.requirement.findUnique({
+    where: { id: requirementId },
+  });
+  if (!current) {
+    throw new ApiError(404, "REQUIREMENT_NOT_FOUND", "Requirement not found");
+  }
+  if (current.currentVersion !== input.expectedVersion) {
+    throw versionConflict(input.expectedVersion, current.currentVersion);
+  }
 
-    const versionChanges = changedVersionFields(current, input);
-    const metadataChanges = changedMetadataFields(current, input);
-    if (versionChanges.length === 0 && metadataChanges.length === 0) {
-      return current;
-    }
+  const versionChanges = changedVersionFields(current, input);
+  const metadataChanges = changedMetadataFields(current, input);
+  if (versionChanges.length === 0 && metadataChanges.length === 0) {
+    return current;
+  }
 
-    const nextTitle = input.title ?? current.title;
-    const nextDescription = input.description ?? current.description;
-    const nextPriority = input.priority ?? current.priority;
-    const nextVersion =
-      current.currentVersion + (versionChanges.length > 0 ? 1 : 0);
+  const nextTitle = input.title ?? current.title;
+  const nextDescription = input.description ?? current.description;
+  const nextPriority = input.priority ?? current.priority;
+  const nextVersion =
+    current.currentVersion + (versionChanges.length > 0 ? 1 : 0);
 
-    await tx.requirement.update({
-      where: { id: requirementId },
+  await tx.requirement.update({
+    where: { id: requirementId },
+    data: {
+      ...(input.requirementKey === undefined
+        ? {}
+        : { requirementKey: input.requirementKey }),
+      ...(input.status === undefined ? {} : { status: input.status }),
+      ...(versionChanges.includes("title") ? { title: nextTitle } : {}),
+      ...(versionChanges.includes("description")
+        ? { description: nextDescription }
+        : {}),
+      ...(versionChanges.includes("priority")
+        ? { priority: nextPriority }
+        : {}),
+      ...(versionChanges.length > 0 ? { currentVersion: nextVersion } : {}),
+    },
+  });
+
+  if (versionChanges.length > 0) {
+    await tx.requirementVersion.create({
       data: {
-        ...(input.requirementKey === undefined
-          ? {}
-          : { requirementKey: input.requirementKey }),
-        ...(input.status === undefined ? {} : { status: input.status }),
-        ...(versionChanges.includes("title") ? { title: nextTitle } : {}),
-        ...(versionChanges.includes("description")
-          ? { description: nextDescription }
-          : {}),
-        ...(versionChanges.includes("priority")
-          ? { priority: nextPriority }
-          : {}),
-        ...(versionChanges.length > 0 ? { currentVersion: nextVersion } : {}),
+        requirementId,
+        versionNumber: nextVersion,
+        title: nextTitle,
+        description: nextDescription,
+        priority: nextPriority,
+        changeSummary: input.changeSummary ?? null,
       },
     });
+  }
 
-    if (versionChanges.length > 0) {
-      await tx.requirementVersion.create({
-        data: {
-          requirementId,
-          versionNumber: nextVersion,
-          title: nextTitle,
-          description: nextDescription,
-          priority: nextPriority,
-          changeSummary: input.changeSummary ?? null,
-        },
-      });
-    }
-
-    return tx.requirement.findUniqueOrThrow({ where: { id: requirementId } });
-  });
+  return tx.requirement.findUniqueOrThrow({ where: { id: requirementId } });
 }
 
 export async function archiveRequirement(requirementId: string) {

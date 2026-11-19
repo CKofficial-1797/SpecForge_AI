@@ -40,6 +40,15 @@ Labels distinguish approved requirements, implementation defaults, and open ques
 - The AI uses a bounded relational context rather than embeddings or full-project data. It excludes archived requirements and records exact version references.
 - Confidence is model-reported, not calibrated probability. Semantic coverage and contradiction detection are incomplete; evidence validation is conservative and not proof that every paraphrase is grounded.
 
+## Phase 5 workflow decisions
+
+- Clarification answers are append-only revisions. Editing an answer preserves the old text and marks only the latest revision current. Dismissal is a distinct terminal state and is never treated as an answer.
+- Repeated imports deduplicate only exact normalized question wording from the same source analysis. The same wording from a different analysis is retained with its own source reference.
+- Refinement is stored as a proposal against an exact base requirement version. A human approval is required; a stale proposal returns conflict. Approval and canonical requirement version creation share one transaction using the existing expected-version update helper. Assumptions or unresolved questions prevent approval.
+- Rejection leaves canonical requirement content and versions unchanged. Without authentication there is no invented reviewer account; `reviewedBy` stays null while timestamps are retained.
+- Acceptance criteria are separate version-bound records and start as drafts. Each criterion requires individual review. Unresolved criteria cannot be approved; older approved criteria remain intact and are labeled historical when a newer requirement version exists.
+- Acceptance generation is blocked until outstanding questions are handled and answers for the current version have been incorporated into an approved refinement. Criteria come only from the canonical version and do not receive clarification answers that are not yet part of it.
+
 ## Open questions
 
 - What production deployment target and secret-management approach should be supported?
@@ -48,4 +57,4 @@ Labels distinguish approved requirements, implementation defaults, and open ques
 
 ## Deferred
 
-Authentication, clarification workflows, acceptance criteria and test generation, vector search, background queues, CI deployment, and production hosting remain deferred.
+Authentication, generated test plans, vector search, background queues, CI deployment, and production hosting remain deferred.

@@ -11,14 +11,14 @@ Browser → React frontend → Express API → Prisma → PostgreSQL
 
 ## Responsibilities and planned boundaries
 
-- **Frontend:** React Router screens for project lists/details, requirement editing, and read-only version history. TanStack Query manages API state.
+- **Frontend:** React Router screens for project/requirement management, version history, validation, optional AI analysis, clarification/refinement review, and acceptance criteria review. TanStack Query manages API state.
 - **Backend:** HTTP boundary and modular project/requirement services with Zod validation, pagination, filtering, error mapping, and transactional writes.
 - **Database:** PostgreSQL stores projects, requirements, and immutable content versions through Prisma migrations.
 - **Validation engine:** pure rule functions receive a requirement, same-project related requirements, and explicit rule configuration. A fixed registry runs nine rules in stable order and the Zod contract validates the final report.
 - **Validation service:** loads and locks the current requirement version, runs the engine, and stores the validated report in the same transaction. HTTP controllers never supply trusted findings.
 - **Validation reports:** JSONB rows are associated with requirement ID, exact content version, rule-set version, and creation timestamp. The application exposes no update or delete endpoint for reports.
 - **AI service:** optional structured semantic analysis through a typed Ollama HTTP boundary. Prompt construction, Zod schema, output guard, context builder, orchestration, and application persistence have separate responsibilities. Ollama is never required for API startup or deterministic validation.
-- **Human review:** potential conflict findings are presented for human review. No AI analysis or approval workflow exists yet.
+- **Human review:** deterministic findings, AI findings, clarifications, requirement refinements, and acceptance criteria remain separate reviewable records. Approval is an explicit server-controlled transition.
 
 Requirement versions snapshot title, description, and priority. Key and status are mutable metadata and do not create versions. Versioned updates lock the requirement row, check `expectedVersion`, then update the current record and insert the next snapshot in one transaction. Validation acquires a shared row lock while it reads the current content and inserts its report, preventing a concurrent edit from changing the content during analysis. A report remains tied to its saved version after later edits.
 
@@ -32,4 +32,16 @@ The context builder loads the target's exact current `RequirementVersion` and a 
 
 Deterministic and AI results use separate endpoints, storage, and UI sections. AI cannot alter requirements, validation results, or status. Health at `/api/ai/health` reports the optional dependency without affecting `/api/health`. Failed/unavailable analyses are not presented as results; existing successful history remains readable. Analysis is synchronous and bounded by the configured Ollama timeout; queue-based execution is deferred unless observed model latency exceeds the HTTP lifecycle.
 
-The project validation summary uses only saved reports whose `requirementVersion` equals the current requirement version. Older reports remain available in requirement history but do not count as analysis of changed content. The modular monolith keeps deployment simple; queues, Redis, vector stores, microservices, and AI orchestration remain outside this phase.
+## Clarifications, refinement, and acceptance criteria
+
+`ClarificationQuestion` rows are imported only from successful, schema-valid persisted analyses. The source analysis and requirement association are enforced together by a composite foreign key. A normalized SHA-256 question fingerprint is unique within one requirement and one source analysis; repeated imports are idempotent while identical wording from separate analyses remains traceable to each source. Related requirement references are checked against the source analysis context and same project before import.
+
+`ClarificationAnswer` stores each submitted answer as a revision. A partial unique index allows only one current answer per question. Answer edits atomically mark the old revision non-current and add a new revision. Questions use only `OPEN → ANSWERED`, `OPEN → DISMISSED`, and `ANSWERED → ANSWERED` when an answer revision changes; dismissed questions cannot be answered or reopened. Dismissed/open questions remain unresolved for generation.
+
+Refinement prompts include the exact source requirement version, project constraints, same-project non-archived related versions from the saved analysis context, and only latest answers to answered questions. Unanswered/dismissed question text is not sent as resolved context; the server adds it to the saved proposal's unresolved list. The output schema checks question/answer pairs against supplied current answer IDs and requires every supplied answer to be explicitly accounted for. Drafts store prompt version, structured proposal, source analysis, and exact base version. Approval locks the requirement and draft, rejects stale bases, rejects assumptions/unresolved questions, validates no-op/content constraints, calls the shared expected-version requirement update transaction, creates a version snapshot, approves the draft, and supersedes other pending drafts atomically. Rejection leaves the canonical requirement untouched. Reviewer identity stays nullable because authentication is not implemented.
+
+Acceptance criteria are generated only from the exact current requirement version after open/dismissed clarifications are resolved and answered clarification sets have been incorporated through an approved refinement. Strict schema, byte limits, non-empty Given/When/Then fields, deterministic duplicate fingerprints, and version foreign keys guard persistence. Each record starts as `DRAFT`, stores model/prompt provenance, and can be individually approved or rejected. Unresolved details cannot be approved; historical records retain their source version and are flagged at read time rather than rewritten.
+
+Refinement prompt version and acceptance prompt version are recorded with their records. Both prompts treat requirement/answer text as untrusted input, delimit JSON context, escape delimiter characters, and require uncertainty reporting. Prompt wording is not a complete prompt-injection defense; output schemas, database reference checks, status transitions, and human approval remain separate safeguards.
+
+The project validation summary uses only saved reports whose `requirementVersion` equals the current requirement version. Older reports remain available in requirement history but do not count as analysis of changed content. The modular monolith keeps deployment simple; background queues, Redis, vector stores, microservices, and autonomous agents remain outside scope.
