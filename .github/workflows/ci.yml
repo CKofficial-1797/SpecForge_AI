@@ -1,0 +1,40 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: specforge
+          POSTGRES_USER: specforge
+          POSTGRES_PASSWORD: specforge_local
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U specforge -d specforge"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://specforge:specforge_local@localhost:5432/specforge?schema=public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run db:generate
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npx prisma migrate deploy --schema prisma/schema.prisma
+      - run: npm run test:integration --workspace backend
+      - run: npx prisma validate --schema prisma/schema.prisma
+      - run: npm run build
+      - run: docker build -f backend/Dockerfile -t specforge-backend .
+      - run: docker build -f frontend/Dockerfile -t specforge-frontend .
