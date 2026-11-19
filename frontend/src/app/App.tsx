@@ -1,5 +1,7 @@
-import { NavLink, Route, Routes } from "react-router-dom";
-import { HomePage } from "../pages/HomePage";
+import { NavLink, Navigate, Route, Routes } from "react-router-dom";
+import { ProjectDetailPage } from "../pages/ProjectDetailPage";
+import { ProjectsPage } from "../pages/ProjectsPage";
+import { RequirementDetailPage } from "../pages/RequirementDetailPage";
 
 export function App() {
   return (
@@ -12,11 +14,10 @@ export function App() {
         <div className="nav-label">WORKSPACE</div>
         <nav aria-label="Main navigation">
           <NavLink
-            to="/"
-            end
+            to="/projects"
             className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
           >
-            Overview
+            Projects
           </NavLink>
         </nav>
         <div className="sidebar-footer">Engineering workspace</div>
@@ -25,12 +26,18 @@ export function App() {
         <header className="topbar">
           <span>Workspace</span>
           <span className="status">
-            <i /> Foundation
+            <i /> Ready
           </span>
         </header>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="*" element={<HomePage />} />
+          <Route path="/" element={<Navigate to="/projects" replace />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/projects/:projectId" element={<ProjectDetailPage />} />
+          <Route
+            path="/requirements/:requirementId"
+            element={<RequirementDetailPage />}
+          />
+          <Route path="*" element={<Navigate to="/projects" replace />} />
         </Routes>
       </main>
     </div>

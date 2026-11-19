@@ -1,8 +1,8 @@
-# SpecForge
+# SpecForge_AI
 
 **From Requirements to Reliable Software.**
 
-SpecForge is an engineering quality and requirement intelligence platform planned to help teams turn incomplete, ambiguous, or inconsistent software requirements into clear specifications, acceptance criteria, and traceable tests. This repository currently contains only the Phase 1 engineering foundation; product workflows and AI are not implemented.
+SpecForge is an engineering quality and requirement intelligence platform. Phase 2 adds project management, structured requirements, and immutable requirement version history. AI analysis, acceptance-criteria generation, and traceable test workflows are not implemented.
 
 ## Stack and architecture
 
@@ -18,7 +18,7 @@ Node.js 22+, npm, Git, and Docker Desktop with its Compose engine running.
 docker compose up --build
 ```
 
-Frontend: `http://localhost:8080`. API health: `http://localhost:3000/api/health`. PostgreSQL persists in the named `postgres_data` volume. There are no product tables or migrations yet. Apply future migrations with `docker compose exec backend npx prisma migrate deploy`.
+Frontend: `http://localhost:8080`. API health: `http://localhost:3000/api/health`. PostgreSQL persists in the named `postgres_data` volume. The backend applies committed Prisma migrations on startup.
 
 Copy `.env.example` to `.env` to customize local values. Its credentials are for local development only; never use them for a public deployment.
 
@@ -35,9 +35,9 @@ Use `Copy-Item .env.example .env` instead of `cp` in PowerShell. Frontend runs a
 
 ## Database and checks
 
-The schema is `prisma/schema.prisma` and intentionally has no speculative domain tables. Create development migrations after approved model changes with `npm run db:migrate -- --name descriptive_name`; generate the Prisma 7 client with `npm run db:generate`.
+The schema is `prisma/schema.prisma`. Create development migrations with `npm run db:migrate -- --name descriptive_name`; generate the Prisma 7 client with `npm run db:generate`. Projects support create, list/filter/page, edit, and archive. Requirements support create, list/filter/page, edit, archive, and read-only version history. Changes to title, description, or priority create an immutable version; requirement key and status edits do not. Updates require `expectedVersion` and return HTTP 409 on stale edits.
 
-Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`, `npm run build`, and `npx prisma validate --schema prisma/schema.prisma`. CI runs these checks and builds both Docker images on pushes and pull requests targeting `main`. Remote GitHub Actions results require a configured remote and workflow run.
+Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`, and `npm run build`. Integration tests require a dedicated `specforge_test` PostgreSQL database; set `TEST_DATABASE_URL` to that database and run `npm run test:integration --workspace backend`. CI applies migrations and runs both test suites on pushes and pull requests targeting `main`. Remote GitHub Actions results require a successful push and workflow run.
 
 ## Troubleshooting
 
@@ -47,4 +47,3 @@ Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`,
 - Database persistence: keep the `postgres_data` volume when stopping services.
 
 See [development guide](docs/DEVELOPMENT.md) for more detail.
-# SpecForge_AI

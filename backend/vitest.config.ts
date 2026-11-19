@@ -5,6 +5,7 @@ export default defineConfig({
     setupFiles: ["./tests/setup.ts"],
     exclude: [
       "tests/database.integration.test.ts",
+      "tests/integration/**",
       "**/node_modules/**",
       "**/dist/**",
     ],

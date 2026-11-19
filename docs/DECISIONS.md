@@ -9,7 +9,7 @@ Labels distinguish approved requirements, implementation defaults, and open ques
 - PostgreSQL through local Docker Compose with Prisma; no managed database in current scope.
 - Prisma ORM 7 with its PostgreSQL driver adapter and Zod 4 for validation; these versions address advisories in older releases and fit the Node.js 22+ target.
 - Modular monolith with separate frontend and backend packages.
-- AI is excluded from Phase 1. Future integration is planned around Ollama and structured output, subject to hardware/model decisions.
+- AI remains excluded from Phase 2. Future integration is planned around Ollama and structured output, subject to hardware/model decisions.
 - Deterministic validation, AI analysis, and human approval have separate responsibilities.
 
 ## Engineering defaults
@@ -28,4 +28,4 @@ Labels distinguish approved requirements, implementation defaults, and open ques
 
 ## Deferred
 
-Domain schema, authentication, API contract generation, deterministic engine, AI/Ollama, CI deployment, and production hosting are outside Phase 1.
+Authentication, API contract generation, deterministic analysis engine, AI/Ollama, CI deployment, and production hosting remain deferred after Phase 2.

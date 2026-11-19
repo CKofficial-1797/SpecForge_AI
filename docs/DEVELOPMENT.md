@@ -25,9 +25,9 @@ Compose waits for PostgreSQL's `pg_isready` health check before starting the API
 
 ## Migrations and validation
 
-The Prisma 7 schema is `prisma/schema.prisma`; it intentionally has no domain models or migration files in this phase. The generated client is written to `backend/src/generated/prisma` and ignored by Git. PostgreSQL access uses Prisma's `pg` driver adapter. After approved schema changes, use `npm run db:migrate -- --name descriptive_name` for development. Apply committed migrations with `npx prisma migrate deploy` and generate the client with `npm run db:generate`.
+The Prisma 7 schema is `prisma/schema.prisma`; its migrations create project, requirement, and immutable requirement-version tables. The generated client is written to `backend/src/generated/prisma` and ignored by Git. PostgreSQL access uses Prisma's `pg` driver adapter. Use `npm run db:migrate -- --name descriptive_name` for development and `npx prisma migrate deploy` to apply committed migrations. Generate the client with `npm run db:generate`.
 
-Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`, and `npm run build`. Validate schema with `npx prisma validate --schema prisma/schema.prisma`. For Docker, run `docker compose config`, build images, start services, and check `http://localhost:3000/api/health`.
+Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`, and `npm run build`. Integration tests are isolated from the development database: create a `specforge_test` database and set `TEST_DATABASE_URL`, for example `postgresql://specforge:specforge_local@localhost:5432/specforge_test?schema=public`, then run `npm run test:integration --workspace backend`. The suite refuses any database whose name is not exactly `specforge_test`. For Docker, run `docker compose config`, build images, start services, and check `http://localhost:3000/api/health`.
 
 ## Common issues
 

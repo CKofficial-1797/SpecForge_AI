@@ -3,12 +3,13 @@
 ## Project and phase
 
 - **Project:** SpecForge — From Requirements to Reliable Software.
-- **Current phase:** Phase 1, engineering foundation.
-- **Last updated:** 2026-11-19.
-- **Objective:** Establish a reproducible frontend, backend, local PostgreSQL/Prisma, Docker, CI, and documentation foundation without product business functionality.
+- **Current phase:** Phase 2, project and requirement management.
+- **Last updated:** 2026-11-20.
+- **Objective:** Build project CRUD/archive, requirement CRUD/archive, immutable content versions, and the first usable management screens.
 - **Git branch:** `main` (initialized for this workspace).
-- **Commit status:** No commits. Commits are user controlled.
-- **Proposed commit:** `chore: initialize project foundation`.
+- **Commit status:** Initial commit `85acb98` (`chore: initialize project foundation`) created locally with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`. Push to `origin` was rejected with HTTP 403 because GitHub authenticated as `Sourav29pal`.
+- **Remote:** `https://github.com/CKofficial-1797/SpecForge_AI.git` (`origin`).
+- **Phase 2 commit:** Not created. Review the working tree and request user approval before committing.
 
 ## Initial repository and environment
 
@@ -16,11 +17,13 @@ The workspace was empty: no files, Git repository, documentation, or uncommitted
 
 ## Completed work
 
-- Added React/Vite/TypeScript frontend with Tailwind CSS, shadcn-compatible configuration, React Router, TanStack Query, responsive application shell, and UI test.
-- Added Express/TypeScript API with Zod 4 environment validation, configured CORS allowlist, request logging, 404/error responses, `/api/health`, Prisma 7 PostgreSQL adapter, and graceful HTTP shutdown.
-- Added empty Prisma 7 schema/config, PostgreSQL Compose service with health check and persistent named volume, backend/frontend multi-stage Dockerfiles, Nginx API proxy, and CI workflow.
-- Added README plus architecture, development, decisions, and handoff documentation.
-- No domain tables, authentication, AI dependencies, or business workflows were added.
+- Phase 1 foundation is committed as `85acb98`.
+- Added Prisma Project, Requirement, and RequirementVersion models and two migrations, including database-level data checks.
+- Added paginated/filterable project and requirement APIs, archive operations, input validation, duplicate-key handling, and structured API errors.
+- Added transactional immutable version creation with row locking and `expectedVersion` conflict detection. Only title, description, or priority changes create versions; key/status edits do not.
+- Added React project list/detail, requirement editor/detail, and read-only version history screens.
+- Isolated integration tests to a separately named `specforge_test` database and updated CI and Docker startup to deploy migrations.
+- Updated README, architecture, development, and handoff docs. No authentication, AI, acceptance-criteria generation, or Phase 3 work was added.
 
 ## Files created
 
@@ -44,12 +47,14 @@ Approved stack and boundaries are recorded in `docs/DECISIONS.md`. Defaults incl
 - `psql --version`: command not found.
 - `npm install`: completed; lockfile generated; final installer audit reported zero vulnerabilities.
 - `npm run db:generate`: passed with Prisma Client 7.10.1.
-- `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`, `npm run build`: passed after the final Prisma/Zod/Vitest dependency upgrade (frontend 1 test; backend 5 tests).
+- `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`, `npm run build`: Phase 2 passed (frontend 1 test; backend 8 tests).
 - `npx prisma validate --schema prisma/schema.prisma`: passed with Prisma 7.10.1.
 - `docker compose config --quiet`: passed.
 - `docker compose up --build -d`: built frontend/backend images and started services. PostgreSQL reported healthy; backend and frontend containers stayed up.
+- Phase 2 Docker rebuild: both images rebuilt and services started; backend logs reported two migrations found and no pending migrations, then API listening on port 3000.
+- Live runtime smoke check: `/api/health` returned healthy JSON, `/api/projects` returned the expected empty paginated response, and `http://localhost:8080/projects` returned HTTP 200.
 - `GET http://localhost:3000/api/health` and `GET http://localhost:8080/api/health`: both returned `{ "status": "ok", "service": "specforge-api" }`.
-- `npm run test:integration --workspace backend` with local Compose `DATABASE_URL`: passed (1 test, PostgreSQL connect and `SELECT 1`).
+- `npm run test:integration --workspace backend` with `TEST_DATABASE_URL` targeting local `specforge_test`: passed (3 files, 5 tests), covering database access, project lifecycle, validation, requirement history, duplicate keys, stale/concurrent updates, and archive behavior.
 - Persistence probe: temporary PostgreSQL table/data survived `docker compose restart db`; probe table was dropped afterward.
 - `npm audit --omit=dev`: zero production vulnerabilities. Full installer audit after Vitest upgrade: zero vulnerabilities.
 - GitHub Actions workflow is locally authored/reviewed but has not run remotely; no remote is configured.
@@ -58,7 +63,7 @@ Approved stack and boundaries are recorded in `docs/DECISIONS.md`. Defaults incl
 
 - GitHub remote CI execution cannot be verified until a remote repository is configured and a workflow run occurs.
 - Backend health reports process status only; it does not query PostgreSQL.
-- No Prisma migration exists because the Phase 1 schema intentionally contains no product tables.
+- GitHub Actions has not run remotely; the earlier initial push was rejected with HTTP 403 while GitHub authenticated as `Sourav29pal`. Do not claim the remote is current until verified.
 
 ## Open questions
 
@@ -68,8 +73,8 @@ Approved stack and boundaries are recorded in `docs/DECISIONS.md`. Defaults incl
 
 ## Deferred features
 
-Authentication, domain schema, requirement workflows, deterministic business rules, AI/Ollama, OpenAPI, deployment/CD, and production hosting remain outside Phase 1.
+Authentication, deterministic requirement analysis, AI/Ollama, OpenAPI, deployment/CD, and production hosting remain outside Phase 2. Do not begin Phase 3 without a new user request.
 
 ## Recommended next action
 
-Phase 1 implementation and local acceptance checks are complete, except remote CI execution, which is unavailable without a configured remote. Review the final Git status and files, then present the proposed commit and wait for explicit approval. Do not begin Phase 2.
+Review the complete Phase 2 diff and local validation results with the user. Do not commit or push until the user explicitly approves the Phase 2 commit. The Phase 1 foundation commit remains intact.

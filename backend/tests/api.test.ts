@@ -17,6 +17,7 @@ describe("API foundation", () => {
   });
 
   it("formats unexpected errors through the centralized handler", () => {
+    const errorLog = vi.spyOn(console, "error").mockImplementation(() => {});
     const response = {
       headersSent: false,
       status: vi.fn().mockReturnThis(),
@@ -25,7 +26,15 @@ describe("API foundation", () => {
     errorHandler(new Error("failure"), {} as never, response as never, vi.fn());
     expect(response.status).toHaveBeenCalledWith(500);
     expect(response.json).toHaveBeenCalledWith({
-      error: { code: "INTERNAL_ERROR", message: "failure" },
+      error: {
+        code: "INTERNAL_ERROR",
+        message: "Unexpected server error",
+      },
     });
+    expect(errorLog).toHaveBeenCalledWith(
+      "Unhandled API error",
+      expect.any(Error),
+    );
+    errorLog.mockRestore();
   });
 });
