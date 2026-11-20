@@ -1,2 +1,2 @@
-export const ACCEPTANCE_PROMPT_VERSION = "1.2.0";
+export const ACCEPTANCE_PROMPT_VERSION = "1.3.0";
 export const ACCEPTANCE_OUTPUT_MAX_BYTES = 48_000;

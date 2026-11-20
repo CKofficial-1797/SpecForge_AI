@@ -61,3 +61,11 @@ Run `npm audit --omit=dev` and `npm audit` before release, record registry/audit
 ## Local LLM verification update (2026-11-20)
 
 Ollama 0.40.16 with `qwen2.5:3b-instruct` was exercised locally. Prompt version 1.2.0 redacts credential-like markers and unsupported UUIDs from supplied free-text context; the output guard independently rejects echoed markers and unsupported UUID references. In the latest 14-case run, planted-marker echo was 0/14, but only 11/14 outputs passed full validation. This is limited evidence for the selected synthetic probes, not proof of prompt-injection resistance. Three invalid outputs were rejected; the three downstream generators also safely rejected invalid outputs. See `docs/AI_EVALUATION.md`.
+
+## Phase 9 verification status (2026-11-20)
+
+- The local Docker backend reached host Ollama through `host.docker.internal`; a live analysis and refinement were generated and persisted. The development ports were checked after container recreation and bound to loopback (`127.0.0.1`); PostgreSQL, API, and frontend are not intended for public exposure from this Compose configuration.
+- The acceptance generator rejected model output through the grounding validator. No invalid criterion was persisted. Test generation was not exercised because there was no approved criterion for the current requirement version. A final prompt wording change has not yet been checked through a live model call.
+- SEC-001 and SEC-009 remain open: the application has no authentication, project authorization, or reviewer identity. Avoid multi-user/public deployment. The demo approval endpoint is not evidence of user identity or authorization.
+- SEC-010 remains open as last investigated on 2026-11-20. No fresh dependency audit or dependency change was made in Phase 9. Continue to treat the documented Prisma 7.10.1 → `@prisma/config` → `effect@3.20.0` advisory path as unresolved pending a compatible, tested fix.
+- No penetration test, authenticated authorization test, cloud inference, or induced-timeout test was performed. See [AI evaluation](docs/AI_EVALUATION.md) and [reliability status](docs/RELIABILITY.md).

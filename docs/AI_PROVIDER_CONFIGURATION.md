@@ -19,7 +19,7 @@ OLLAMA_TIMEOUT_MS=180000
 OLLAMA_MAX_RETRIES=1
 ```
 
-For Docker Compose, the backend container defaults to `http://host.docker.internal:11434` so it can reach Ollama running on the host. Override `OLLAMA_BASE_URL` if your Docker environment uses another host address. Ollama is not a Compose service and is never required for startup.
+For Docker Compose, the backend container uses `OLLAMA_DOCKER_BASE_URL` and defaults to `http://host.docker.internal:11434`, so it reaches Ollama running on the host. This path was verified in Phase 9 by a real analysis request through the containerized backend. Set that variable if your Docker environment uses another host address. `OLLAMA_BASE_URL` remains the host-process URL. Ollama is not a Compose service and is never required for startup.
 
 ## Ollama Cloud
 

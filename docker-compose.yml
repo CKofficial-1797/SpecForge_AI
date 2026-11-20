@@ -32,7 +32,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-specforge}:${POSTGRES_PASSWORD:-specforge_local}@db:5432/${POSTGRES_DB:-specforge}?schema=public
       AI_PROVIDER: ${AI_PROVIDER:-ollama}
       OLLAMA_ENABLED: ${OLLAMA_ENABLED:-false}
-      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_BASE_URL: ${OLLAMA_DOCKER_BASE_URL:-http://host.docker.internal:11434}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-}
       OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
       OLLAMA_TIMEOUT_MS: ${OLLAMA_TIMEOUT_MS:-180000}

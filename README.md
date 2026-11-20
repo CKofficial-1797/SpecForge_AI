@@ -47,6 +47,8 @@ SpecForge can use local Ollama or Ollama Cloud for semantic findings and product
 
 The AI integration is optional and provider selection is backend-only through `AI_PROVIDER`. For local mode, install Ollama and Qwen2.5, then configure `AI_PROVIDER=ollama`, `OLLAMA_ENABLED=true`, `OLLAMA_BASE_URL`, and `OLLAMA_MODEL`. For cloud mode, configure `AI_PROVIDER=ollama-cloud`, `OLLAMA_API_KEY`, and a currently supported `OLLAMA_MODEL`; no local Ollama install or model download is needed. Cloud inference sends the supplied requirement context to Ollama Cloud. Cloud models currently do not support Ollama structured output mode, so SpecForge still validates the returned JSON with its unchanged schemas and guards. Use `/api/ai/health` for configuration status; remote cloud model/key availability is confirmed when an inference request runs. See [AI provider configuration](docs/AI_PROVIDER_CONFIGURATION.md), [local Ollama setup](docs/OLLAMA_SETUP.md), and the [development guide](docs/DEVELOPMENT.md#optional-ollama-ai-analysis).
 
+For Docker Desktop, `localhost` inside the backend container is the container itself. Set `OLLAMA_DOCKER_BASE_URL=http://host.docker.internal:11434` for a host-installed Ollama instance; Compose keeps the Ollama service optional and does not publish port 11434. The backend uses `OLLAMA_BASE_URL` for host-process development and `OLLAMA_DOCKER_BASE_URL` in Compose. Never expose the Ollama endpoint to an untrusted network.
+
 ## Clarification, refinement, and acceptance criteria
 
 Import clarification questions from a successful saved AI analysis. Questions can be answered, revised with full answer history, or dismissed; dismissal never counts as an answer. A refinement proposal uses the original version and latest submitted answers, and remains separate from the canonical requirement until explicit approval. Approval checks the base version and creates the next immutable requirement version in the same transaction. Stale drafts cannot be approved.
@@ -64,6 +66,10 @@ Project details include a version-aware traceability matrix linking requirements
 ## Security and readiness
 
 SpecForge currently has no authentication or project-level user authorization. Do not expose it to untrusted networks or use it as a multi-user service until access control is implemented. Docker Compose development ports bind to localhost. See [security findings and deployment precautions](SECURITY.md), [AI evaluation](docs/AI_EVALUATION.md), [Ollama setup and current verification](docs/OLLAMA_SETUP.md), and [reliability behavior](docs/RELIABILITY.md).
+
+## Demo preparation status
+
+The Phase 9 demo uses a real local Qwen2.5 3B analysis and a refinement draft whose review transition was invoked during preparation; no identified stakeholder is recorded as reviewer. Acceptance criteria were rejected by source grounding, so no successful criterion or downstream test case is available to show. No application screenshots or video have been produced. See the [10-minute demo plan](docs/DEMO_SCRIPT.md), [manual screenshot guide](docs/SCREENSHOT_GUIDE.md), and [five-slide outline](docs/PRESENTATION_OUTLINE.md) for an accurate presentation plan and capture instructions.
 
 ## Troubleshooting
 

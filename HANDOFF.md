@@ -257,3 +257,42 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 | Docker-to-host Ollama networking                                   | BLOCKED | Docker engine pipe denied access from this shell                             |
 
 Suggested commit message: `feat: add environment-based local and cloud Ollama providers`.
+
+## Phase 9 product completion status (2026-11-20)
+
+### Starting state and scope
+
+- Began on branch `main` at `240c4ac feat: add environment-based local and cloud Ollama providers`; working tree was clean. Earlier Phase 8 and focused generation commits are in history. No Phase 9 commit was created.
+- User directed local Ollama for this phase; cloud quota/billing remains deferred. No authentication, role system, or user/project authorization existed, so the prototype remains restricted to trusted local use. SEC-001, SEC-009, and SEC-010 remain unresolved.
+- The project database had no projects when the demo work began. A clearly named demo workspace and `ACC-001` were added to the development database. No database reset or destructive cleanup was performed.
+
+### Product and live local AI results
+
+| Workflow                       | Phase 9 status          | Actual result                                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Container-to-host Ollama       | **VERIFIED**            | Backend used `http://host.docker.internal:11434`; `/api/ai/health` reported Qwen available. Ollama is `0.40.16`, model `qwen2.5:3b-instruct`, digest `357c53fb659c`. Compose does not run Ollama or publish 11434.                                                                                                                                                        |
+| Requirement analysis           | **PASSED once**         | Real local inference passed production output checks, persisted on source requirement version 1, and was retrieved from history; approximately 18.4 s.                                                                                                                                                                                                                    |
+| Clarification and demo answer  | **PASSED**              | Saved question was imported; demo answer revision 3 is persisted. It was supplied during demo preparation, not by an identified product owner. It explicitly states demo behavior and leaves unspecified policies open.                                                                                                                                                   |
+| Requirement refinement         | **PASSED once**         | Two misleading drafts were rejected. A later real draft used the current answer and carried its explicit content; it was inspected and the approval transition invoked, creating immutable requirement version 2. Approximately 7 s inference. Reviewer identity is null because authentication is absent; this is not evidence of approval by an identified stakeholder. |
+| Acceptance criteria            | **FAILED / UNRELIABLE** | Live model outputs were rejected with `ACCEPTANCE_OUTPUT_INVALID`. A direct local response changed wording and invented email delivery for an acknowledgement. No criterion was persisted. Prompt `1.3.0` now requires verbatim phrases and preservation of negation; final wording was not verified live.                                                                |
+| Test generation and validation | **BLOCKED**             | No current approved criterion exists, so a source-grounded test case could not be generated or validated.                                                                                                                                                                                                                                                                 |
+| Cloud inference                | **DEFERRED**            | Previously recorded Ollama Cloud request returned HTTP 402 `AI_QUOTA_EXCEEDED`; no Phase 9 cloud request was made.                                                                                                                                                                                                                                                        |
+
+### Security, UX, and submission preparation
+
+- Recreated Compose host bindings were verified as loopback-only for DB/API/frontend. Docker-to-host Ollama worked with the real analysis request. `.env` is ignored and the container is in local mode with the cloud key blank. A cloud credential had appeared in an earlier tool output; the user was advised to revoke/rotate it. Rotation status is unknown. Do not print or reuse it.
+- No browser screenshot or video was produced. The available UI automation could not target the SpecForge Chrome tab. [SCREENSHOT_GUIDE.md](docs/SCREENSHOT_GUIDE.md) provides manual capture steps and labels unavailable screens honestly.
+- Added an evidence-based [demo script](docs/DEMO_SCRIPT.md) and a [five-slide outline](docs/PRESENTATION_OUTLINE.md). No video recording exists. Do not present acceptance/test generation as successful.
+- No full unit/integration/regression suite, frontend browser interaction audit, dependency audit, or presentation build was rerun; the user asked to skip more testing. Final acceptance prompt focused tests passed: 2 files / 4 tests. The last Docker backend image build passed; frontend image was not rebuilt in this focused step.
+- Public/multi-user deployment is **NOT READY** due to missing authentication/authorization and the unresolved SEC-010 advisory. SEC-010 remains open per the documented 2026-11-20 Prisma/Effect audit; no dependency was changed or re-audited.
+
+### Documentation and Git
+
+- Updated `README.md`, `SECURITY.md`, `docs/AI_EVALUATION.md`, `docs/AI_PROVIDER_CONFIGURATION.md`, `docs/ARCHITECTURE.md`, `docs/OLLAMA_SETUP.md`, and `docs/RELIABILITY.md` with current verified state.
+- Added `docs/DEMO_SCRIPT.md`, `docs/SCREENSHOT_GUIDE.md`, and `docs/PRESENTATION_OUTLINE.md`.
+- Tightened the acceptance prompt and prompt version and added a focused prompt test. Strict schema and grounding validation were not loosened.
+- Working-tree changes are uncommitted on `main`; no commit or push was performed. Final status is reported separately.
+
+### Phase 9 readiness
+
+**NOT READY FOR COMPETITION SUBMISSION OR PUBLIC DEPLOYMENT.** Local demonstration of analysis, clarification, and refinement is possible with the existing demo records. Acceptance/test generation still blocks the intended full workflow; screenshots/video remain to be produced; authentication and SEC-010 are release blockers. Per the user's direction, further testing was skipped, so the final acceptance prompt revision has no live-model result. Recommended next step is one focused local inference check, then generate a criterion and downstream case only if every guard passes. Do not start another phase without direction.

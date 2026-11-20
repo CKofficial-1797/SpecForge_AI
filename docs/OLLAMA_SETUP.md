@@ -44,10 +44,10 @@ OLLAMA_TIMEOUT_MS=180000
 OLLAMA_MAX_RETRIES=0
 ```
 
-`GET /api/ai/health` returned enabled/available/modelAvailable true for `qwen2.5:3b-instruct`. A real `POST /api/requirements/:id/analyze` succeeded and persisted a version-1 analysis; history returned it. The latest 14-case real evaluator run had 11 valid outputs and 3 rejected outputs. Two downstream generation workflows also rejected model output; see [AI_EVALUATION.md](AI_EVALUATION.md). `OLLAMA_TIMEOUT_MS` defaults to 180,000 because measured cold-start JSON inference exceeded the prior 90,000 ms default.
+`GET /api/ai/health` returned enabled/available/modelAvailable true for `qwen2.5:3b-instruct`. In Phase 9, a real application analysis succeeded through the container-to-host URL and persisted a version-1 analysis; history returned it. A clarification answer and a refinement draft also passed the live API flow, and the refinement was explicitly approved to create version 2. Acceptance generation failed strict grounding; test generation was blocked because no current approved criterion existed. See [AI_EVALUATION.md](AI_EVALUATION.md) for exact status. `OLLAMA_TIMEOUT_MS` defaults to 180,000 because measured cold-start JSON inference exceeded the prior 90,000 ms default.
 
 Ollama remains optional for application startup and Compose. AI-disabled behavior was verified in a prior local health check; the main CRUD, deterministic validation, and saved-history services do not depend on Ollama. The live disabled-after-install fallback path was not retested as part of this remediation.
 
 ## Docker networking
 
-Compose does not start Ollama. In Docker Desktop, a backend container would use `http://host.docker.internal:11434`; container-to-host inference is **not verified**. Keep the Ollama API private to the host and do not publish port 11434. The Docker images built successfully, but Docker-to-host model connectivity remains unverified.
+Compose does not start Ollama. In Docker Desktop, the backend container uses `OLLAMA_DOCKER_BASE_URL`, defaulting to `http://host.docker.internal:11434`, while host-process development uses `OLLAMA_BASE_URL=http://localhost:11434`. Docker-to-host connectivity was verified in Phase 9 by a successful live analysis request. Keep the Ollama API private to the host and do not publish port 11434.
