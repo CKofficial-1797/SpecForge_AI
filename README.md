@@ -278,23 +278,13 @@ SpecForge_AI/
 ## Limitations
 
 - Authentication and project-level user authorization are not implemented.
-- Do not expose the application to untrusted networks or use it as a multi-user service.
 - Deterministic conflict checks cover only selected patterns.
 - AI suggestions may be incorrect or incomplete and require human review.
-- Cloud AI availability depends on the configured account, model, and quota.
+- Deterministic validation and schema-based checks help reject unsupported or invalid AI outputs, but cannot guarantee detection of every hallucination.
+- - **AI Grounding Limitations:** AI-generated findings must be supported by the provided requirement context. Responses containing unsupported evidence may be rejected by validation, resulting in unsuccessful analysis. This can occur even when the AI provider is available, and repeated attempts may not resolve the issue.
 
-## Documentation
 
-- [Architecture](docs/ARCHITECTURE.md)
-- [Architecture Decisions](docs/DECISIONS.md)
-- [Development Guide](docs/DEVELOPMENT.md)
-- [AI Provider Configuration](docs/AI_PROVIDER_CONFIGURATION.md)
-- [Ollama Setup](docs/OLLAMA_SETUP.md)
-- [AI Evaluation](docs/AI_EVALUATION.md)
-- [Test Case Generation](docs/TEST_CASE_GENERATION.md)
-- [Traceability](docs/TRACEABILITY.md)
-- [Reliability](docs/RELIABILITY.md)
-- [Security](SECURITY.md)
+
 
 ---
 
