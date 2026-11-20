@@ -2,30 +2,44 @@
 
 ### From Requirements to Reliable Software.
 
-SpecForge is an engineering quality and requirement intelligence platform that helps transform incomplete and ambiguous software requirements into clear, testable, and traceable specifications.
+SpecForge AI helps software teams improve the quality of their requirements before development begins. It identifies unclear or incomplete requirements, suggests questions to resolve missing details, and helps transform them into well-defined requirements, acceptance criteria, and test cases.
 
-It combines deterministic validation with optional AI-assisted analysis. AI-generated suggestions remain drafts until reviewed and explicitly approved by a human.
+By combining rule-based validation with AI assistance and human review, SpecForge creates a structured path from an initial requirement to testable and traceable software specifications.
 
 ## The Problem
 
-Software requirements are often vague or incomplete. This leads to assumptions, misunderstandings, unclear acceptance criteria, and difficult testing.
+Poorly defined requirements lead to incorrect assumptions, development rework, unclear expectations, and incomplete testing.
 
-SpecForge helps teams identify requirement quality issues early and turn requirements into verifiable engineering artifacts.
+SpecForge addresses this problem by helping teams identify requirement gaps early, clarify stakeholder expectations, and maintain a clear connection between requirements and testing.
 
 ## Architecture
 
 <img width="1650" height="1242" alt="SpecForge High-Level System Architecture (1)" src="https://github.com/user-attachments/assets/b27490c8-1bca-42e2-a126-90f203b55a48" />
 
 ## Key Features
+- **Project Management**: Create and organize projects and manage all their requirements in one place.
 
-- **Project and requirement management** — create, edit, archive, and organize projects and requirements.
-- **Requirement versioning** — preserve immutable versions and detect stale updates.
-- **Deterministic validation** — identify missing information, vague language, measurability issues, duplicates, and selected potential conflicts.
-- **AI-assisted analysis** — identify semantic ambiguity and suggest clarification questions.
-- **Clarification and refinement** — collect answers and prepare requirement drafts for human review.
-- **Acceptance criteria** — generate and review Given/When/Then criteria.
-- **Test case generation** — generate draft test cases from approved acceptance criteria.
-- **Traceability and coverage** — connect requirements, acceptance criteria, and test cases using version-aware links.
+- **Requirement Management**: Create, edit, archive, and maintain requirements with a clear version history.
+
+- **Deterministic Validation**: Automatically detect missing details, vague language, unmeasurable conditions, duplicate requirements, and selected potential conflicts.
+
+- **AI-Powered Analysis**: Analyze requirements for semantic ambiguity and identify potential issues that rule-based checks may miss.
+
+- **Smart Clarifications**: Generate relevant questions to help stakeholders resolve missing or unclear requirement details.
+
+- **Requirement Refinement**: Use clarification answers to prepare improved requirement drafts for human review and approval.
+
+- **Acceptance Criteria Generation**: Generate structured Given/When/Then acceptance criteria from approved requirements.
+
+- **Test Case Generation**: Generate test case drafts from approved acceptance criteria and validate them before approval.
+
+- **Traceability Matrix**: Track relationships between requirements, acceptance criteria, and test cases across requirement versions.
+
+- **Coverage and Gap Analysis** : Identify approved testing coverage, missing test cases, and areas that still need attention.
+
+- **Human-in-the-Loop Review** : Keep AI-generated content as drafts until a person reviews and explicitly approves it.
+
+
 
 ## Technology Stack
 
@@ -44,41 +58,93 @@ SpecForge helps teams identify requirement quality issues early and turn require
 | CI | GitHub Actions |
 
 
-## Screenshots 
-Projects 
-<img width="1600" height="900" alt="01-projects" src="https://github.com/user-attachments/assets/34d30361-5108-4470-ba9b-a52240d35611" />
-Project Overview
-<img width="1600" height="900" alt="02-project-overview" src="https://github.com/user-attachments/assets/263b5f9b-e71a-4447-8e53-2d802de3c1fc" />
-Requirements
-<img width="1600" height="900" alt="03-requirements" src="https://github.com/user-attachments/assets/6cbf5588-a47a-4098-8df2-503ed02eb9a8" />
-Requirements Creation form 
-<img width="1600" height="900" alt="04-requirement-creation-form" src="https://github.com/user-attachments/assets/b2239329-e4b6-4c85-bb59-d2c51d5ec229" />
-Requirement Detail form 
-<img width="1600" height="900" alt="05-requirement-detail-v2" src="https://github.com/user-attachments/assets/64ee9dd8-1d44-4193-afbb-d6504e618f1c" />
-Deterministic Validation 
-<img width="1600" height="900" alt="06-deterministic-validation" src="https://github.com/user-attachments/assets/eb59e8cc-560f-4be3-9d51-861f25fa5908" />
-AI Analysis 
-<img width="1600" height="900" alt="07-ai-analysis" src="https://github.com/user-attachments/assets/a2be05a2-d1fb-4942-bfa8-f82465d39064" />
-Clarifications
-<img width="1600" height="900" alt="08-clarifications" src="https://github.com/user-attachments/assets/5d552762-f2b1-4f39-a76d-bc613886dc05" />
-Refinement Review 
-<img width="1600" height="900" alt="09-refinement-review" src="https://github.com/user-attachments/assets/d039c263-3ed8-4fc1-88dd-23c8778967dd" />
-Version History 
-<img width="1600" height="900" alt="10-version-history" src="https://github.com/user-attachments/assets/de8c3de7-c433-4915-9e2b-0f871067d047" />
-Traceability Overview 
-<img width="1600" height="900" alt="11-traceability-overview" src="https://github.com/user-attachments/assets/f976345d-1234-45b5-86c3-dd0058eb4be2" />
-Acceptance criteria empty 
-<img width="1600" height="900" alt="12-acceptance-criteria-empty" src="https://github.com/user-attachments/assets/ba6ba69e-f3a0-4072-9761-134f1aa5e9ad" />
-Test cases Empty 
-<img width="1600" height="900" alt="13-test-cases-empty" src="https://github.com/user-attachments/assets/a530cceb-4319-4c84-b387-c3980c3e24bb" />
-Traceability Matrix 
-<img width="1600" height="900" alt="14-traceability-matrix" src="https://github.com/user-attachments/assets/b8a2eedf-b66e-4911-89bc-216e6772f216" />
-Coverage and Gaps 
-<img width="1600" height="900" alt="15-coverage-and-gaps" src="https://github.com/user-attachments/assets/591146f0-dab7-4fd4-8ce6-112b93fc70d2" />
-Human Review Status
-<img width="1600" height="900" alt="16-human-review-status" src="https://github.com/user-attachments/assets/f7f4d5d1-e46a-47d9-a838-5292fbdd10b5" />
-Project Closing 
-<img width="1600" height="900" alt="17-project-closing" src="https://github.com/user-attachments/assets/dc815af6-433e-4c9c-967a-ec80df480dc2" />
+## Screenshots
+
+### 1. Project Management
+View and manage all projects in one place.
+
+![Projects](https://github.com/user-attachments/assets/34d30361-5108-4470-ba9b-a52240d35611)
+
+### 2. Project Overview
+Review project details and its requirement summary.
+
+![Project Overview](https://github.com/user-attachments/assets/263b5f9b-e71a-4447-8e53-2d802de3c1fc)
+
+### 3. Requirement Management
+Browse and manage requirements within a project.
+
+![Requirements](https://github.com/user-attachments/assets/6cbf5588-a47a-4098-8df2-503ed02eb9a8)
+
+### 4. Create Requirement
+Add a new requirement to a project.
+
+![Requirement Creation Form](https://github.com/user-attachments/assets/b2239329-e4b6-4c85-bb59-d2c51d5ec229)
+
+### 5. Requirement Details
+View an individual requirement and its details.
+
+![Requirement Details](https://github.com/user-attachments/assets/64ee9dd8-1d44-4193-afbb-d6504e618f1c)
+
+### 6. Deterministic Validation
+Identify requirement quality issues using rule-based checks.
+
+![Deterministic Validation](https://github.com/user-attachments/assets/eb59e8cc-560f-4be3-9d51-861f25fa5908)
+
+### 7. AI-Assisted Analysis
+Use AI to identify semantic ambiguity and potential requirement issues.
+
+![AI Analysis](https://github.com/user-attachments/assets/a2be05a2-d1fb-4942-bfa8-f82465d39064)
+
+### 8. Clarification Questions
+Review questions that help resolve unclear or incomplete requirements.
+
+![Clarifications](https://github.com/user-attachments/assets/5d552762-f2b1-4f39-a76d-bc613886dc05)
+
+### 9. Refinement Review
+Review a proposed requirement refinement before approval.
+
+![Refinement Review](https://github.com/user-attachments/assets/d039c263-3ed8-4fc1-88dd-23c8778967dd)
+
+### 10. Requirement Version History
+Inspect previous versions of a requirement.
+
+![Version History](https://github.com/user-attachments/assets/de8c3de7-c433-4915-9e2b-0f871067d047)
+
+### 11. Traceability Overview
+View the relationships between requirements and downstream engineering artifacts.
+
+![Traceability Overview](https://github.com/user-attachments/assets/f976345d-1234-45b5-86c3-dd0058eb4be2)
+
+### 12. Acceptance Criteria
+Acceptance criteria workspace.
+
+![Acceptance Criteria](https://github.com/user-attachments/assets/ba6ba69e-f3a0-4072-9761-134f1aa5e9ad)
+
+### 13. Test Cases
+Test case workspace.
+
+![Test Cases](https://github.com/user-attachments/assets/a530cceb-4319-4c84-b387-c3980c3e24bb)
+
+### 14. Traceability Matrix
+Explore links between requirements, acceptance criteria, and test cases.
+
+![Traceability Matrix](https://github.com/user-attachments/assets/b8a2eedf-b66e-4911-89bc-216e6772f216)
+
+### 15. Coverage and Gap Analysis
+Review coverage status and identify missing testing evidence.
+
+![Coverage and Gaps](https://github.com/user-attachments/assets/591146f0-dab7-4fd4-8ce6-112b93fc70d2)
+
+### 16. Human Review Status
+Track the review and approval status of generated artifacts.
+
+![Human Review Status](https://github.com/user-attachments/assets/f7f4d5d1-e46a-47d9-a838-5292fbdd10b5)
+
+### 17. Project Summary
+Review the project closing summary.
+
+![Project Summary](https://github.com/user-attachments/assets/dc815af6-433e-4c9c-967a-ec80df480dc2)
+
 
 
 
