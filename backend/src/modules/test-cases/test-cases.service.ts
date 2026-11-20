@@ -5,7 +5,10 @@ import { ApiError } from "../../utils/api-error.js";
 import { HttpOllamaClient, OllamaError } from "../ai/client/ollama.client.js";
 import type { OllamaClient } from "../ai/client/ollama.types.js";
 import { buildTestGenerationContext } from "./test-generation-context.builder.js";
-import { buildTestGenerationMessages } from "./test-generation.prompt.js";
+import {
+  buildTestGenerationMessages,
+  TEST_GENERATION_OUTPUT_JSON_SCHEMA,
+} from "./test-generation.prompt.js";
 import { TEST_GENERATION_PROMPT_VERSION } from "./test-cases.constants.js";
 import { updateTestCaseBody } from "./test-cases.schema.js";
 import {
@@ -74,6 +77,7 @@ async function runGeneration(requirementId: string, client: OllamaClient) {
     const raw = await client.generate({
       model: env.OLLAMA_MODEL,
       messages: buildTestGenerationMessages(context),
+      format: TEST_GENERATION_OUTPUT_JSON_SCHEMA,
     });
     const output = validateTestGenerationOutput(raw, context);
     const criteriaById = new Map(

@@ -66,7 +66,7 @@ export class HttpOllamaClient implements OllamaClient {
               model: input.model,
               messages: input.messages,
               stream: false,
-              format: "json",
+              format: input.format ?? "json",
               options: { temperature: 0 },
             }),
             signal: AbortSignal.timeout(this.config.timeoutMs),

@@ -5,12 +5,16 @@ import { prisma } from "../../config/database.js";
 import { ApiError } from "../../utils/api-error.js";
 import { HttpOllamaClient, OllamaError } from "../ai/client/ollama.client.js";
 import type { OllamaClient } from "../ai/client/ollama.types.js";
+import { findUnsupportedTerms } from "../ai/validators/source-grounding.validator.js";
 import {
   ACCEPTANCE_OUTPUT_MAX_BYTES,
   ACCEPTANCE_PROMPT_VERSION,
 } from "./acceptance.constants.js";
 import { acceptanceOutputSchema } from "./acceptance.schema.js";
-import { buildAcceptanceMessages } from "./acceptance.prompt.js";
+import {
+  ACCEPTANCE_OUTPUT_JSON_SCHEMA,
+  buildAcceptanceMessages,
+} from "./acceptance.prompt.js";
 
 const defaultClient = new HttpOllamaClient();
 export async function generateAcceptanceCriteria(
@@ -77,6 +81,7 @@ export async function generateAcceptanceCriteria(
     raw = await client.generate({
       model: env.OLLAMA_MODEL,
       messages: buildAcceptanceMessages(context),
+      format: ACCEPTANCE_OUTPUT_JSON_SCHEMA,
     });
   } catch (error) {
     if (error instanceof OllamaError)
@@ -87,7 +92,10 @@ export async function generateAcceptanceCriteria(
       "AI acceptance criteria could not be validated",
     );
   }
-  const output = validateAcceptanceOutput(raw);
+  const output = validateAcceptanceOutput(
+    raw,
+    `${context.title} ${context.description}`,
+  );
   const rows = output.criteria.map((criterion) => ({
     requirementId,
     sourceRequirementVersion: version.versionNumber,
@@ -140,7 +148,7 @@ export async function generateAcceptanceCriteria(
   return listAcceptanceCriteria(requirementId);
 }
 
-export function validateAcceptanceOutput(raw: string) {
+export function validateAcceptanceOutput(raw: string, sourceText: string) {
   if (Buffer.byteLength(raw, "utf8") > ACCEPTANCE_OUTPUT_MAX_BYTES)
     throw new ApiError(
       502,
@@ -163,6 +171,17 @@ export function validateAcceptanceOutput(raw: string) {
       502,
       "ACCEPTANCE_OUTPUT_INVALID",
       "AI acceptance criteria output did not pass validation",
+    );
+  const unsupported = parsed.data.criteria.some((criterion) =>
+    [criterion.title, criterion.given, criterion.when, criterion.then].some(
+      (claim) => findUnsupportedTerms(claim, sourceText).length > 0,
+    ),
+  );
+  if (unsupported)
+    throw new ApiError(
+      502,
+      "ACCEPTANCE_OUTPUT_INVALID",
+      "AI acceptance criteria contain substantive content not grounded in the requirement",
     );
   return parsed.data;
 }

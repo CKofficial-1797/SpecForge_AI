@@ -1,2 +1,2 @@
-export const REFINEMENT_PROMPT_VERSION = "1.0.0";
+export const REFINEMENT_PROMPT_VERSION = "1.1.0";
 export const REFINEMENT_OUTPUT_MAX_BYTES = 48_000;

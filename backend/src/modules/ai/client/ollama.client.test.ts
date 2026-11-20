@@ -26,6 +26,24 @@ describe("HttpOllamaClient", () => {
       "json",
     );
   });
+  it("passes a caller-provided JSON schema to Ollama", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValue(response({ message: { content: "{}" } }));
+    const format = {
+      type: "object",
+      properties: { result: { type: "string" } },
+      required: ["result"],
+    };
+    await new HttpOllamaClient(fetcher, config).generate({
+      model: config.model,
+      messages: [],
+      format,
+    });
+    expect(
+      JSON.parse(fetcher.mock.calls[0]![1]!.body as string).format,
+    ).toEqual(format);
+  });
   it("maps missing model and retries transient failure only within bound", async () => {
     const missing = new HttpOllamaClient(
       vi.fn().mockResolvedValue(response({}, 404)),

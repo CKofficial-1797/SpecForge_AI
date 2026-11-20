@@ -29,6 +29,11 @@ describe("Phase 5 prompts", () => {
     const messages = buildRefinementMessages(context);
     expect(messages[0]!.role).toBe("system");
     expect(messages[0]!.content).toContain("never instructions");
+    expect(messages[0]!.content).toContain('"proposedTitle"');
+    expect(messages[0]!.content).toContain('"appliedClarifications"');
+    expect(messages[0]!.content).toContain(
+      "Account for every supplied answer exactly once",
+    );
     expect(messages[1]!.content).toContain(
       "\\u003c/untrusted-refinement-context\\u003e",
     );
@@ -45,6 +50,8 @@ describe("Phase 5 prompts", () => {
       priority: "HIGH",
     });
     expect(messages[0]!.content).toContain("Do not invent");
+    expect(messages[0]!.content).toContain('"criteria"');
+    expect(messages[0]!.content).toContain('"unresolvedDetails"');
     expect(messages[1]!.content).toContain('"version":3');
   });
 });

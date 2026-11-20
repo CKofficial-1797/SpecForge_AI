@@ -3,6 +3,7 @@ import { TEST_GENERATION_MAX_OUTPUT_BYTES } from "./test-cases.constants.js";
 import { testGenerationOutputSchema } from "./test-cases.schema.js";
 import type { TestGenerationContext } from "./test-generation.prompt.js";
 import { isScenarioSupported } from "./test-case.validator.js";
+import { findUnsupportedTerms } from "../ai/validators/source-grounding.validator.js";
 
 export function validateTestGenerationOutput(
   raw: string,
@@ -66,6 +67,23 @@ export function validateTestGenerationOutput(
     if (resultNumbers.some((number) => !sourceNumbers.includes(number)))
       throw invalid(
         "AI output introduced a numerical value or status code not stated in the approved criterion",
+      );
+    const groundedSource = `${criterion.title} ${criterion.given} ${criterion.when} ${criterion.then}`;
+    const claims = [
+      testCase.title,
+      testCase.description,
+      ...testCase.preconditions,
+      ...testCase.testSteps,
+      ...testCase.testData.flatMap(({ name, value }) =>
+        /^\[[^\]]{1,120}\]$/.test(value) ? [name] : [name, value],
+      ),
+      testCase.expectedResult,
+    ];
+    if (
+      claims.some((claim) => findUnsupportedTerms(claim, groundedSource).length)
+    )
+      throw invalid(
+        "AI test case contains substantive content not grounded in its approved criterion",
       );
   }
   return parsed.data;

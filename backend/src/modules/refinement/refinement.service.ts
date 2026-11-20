@@ -12,7 +12,10 @@ import {
   REFINEMENT_OUTPUT_MAX_BYTES,
   REFINEMENT_PROMPT_VERSION,
 } from "./refinement.constants.js";
-import { buildRefinementMessages } from "./refinement.prompt.js";
+import {
+  buildRefinementMessages,
+  REFINEMENT_OUTPUT_JSON_SCHEMA,
+} from "./refinement.prompt.js";
 import { updateRequirementInTransaction } from "../requirements/requirement.service.js";
 import { requirementAnalysisSchema } from "../ai/schemas/requirement-analysis.schema.js";
 
@@ -60,6 +63,7 @@ export async function createRefinementDraft(
     raw = await client.generate({
       model: env.OLLAMA_MODEL,
       messages: buildRefinementMessages(context),
+      format: REFINEMENT_OUTPUT_JSON_SCHEMA,
     });
   } catch (error) {
     throw mapOllamaError(error);

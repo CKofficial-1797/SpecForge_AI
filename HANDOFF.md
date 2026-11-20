@@ -13,7 +13,7 @@
 - **Phase 4 commit:** `66212e2 feat: add local AI requirement analysis`, pushed to `origin/main` with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`.
 - **Phase 5 commit:** `5847a3a feat: add clarification and acceptance criteria workflows`, pushed to `origin/main` with author `CKofficial-1797 <sanjaygorain1797@gmail.com>`.
 - **Phase 6 commit:** `f45bc0d feat: add AI-assisted test case generation and review`, pushed to `origin/main` with author email `sanjaygorain1797@gmail.com`.
-- **Current Git status:** Phase 8 is pushed as `5c21d29`; remediation documentation changes are uncommitted on `main`. Do not commit or push without explicit approval.
+- **Current Git status:** Pre-Phase 9 remediation baseline `ba8081e` is pushed to `origin/main`; focused real AI generation fixes are uncommitted on `main` and were not pushed.
 
 ## Previous phase history
 
@@ -207,5 +207,27 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 
 - `npm audit --omit=dev` and full `npm audit` remain FAIL: three HIGH advisory paths to `effect@3.20.0` via Prisma 7.10.1 / `@prisma/config`; GHSA-7589-6fvf-x4pw fixes upstream at Effect 3.22.1. No compatible Prisma 7 fix was identified. Per user direction, current Prisma is retained pending a compatible fix; no downgrade, RC upgrade, or override was made. SEC-010 remains open.
 - Authentication and project authorization remain deferred to Phase 9. Real model generation reliability remains insufficient for downstream workflows. Docker-to-host Ollama and an actual request-timeout scenario are unverified.
-- Current Git status: remediation changes are uncommitted on `main`; no commit or push was performed. Suggested commit: `fix: record pre-phase-9 verification and harden AI output guards`.
+- The pre-Phase 9 remediation baseline was committed and pushed as `ba8081e fix: record pre-phase-9 verification and harden AI output guards`; this later focused generation remediation remains uncommitted on `main` as of the latest handoff.
 - Readiness: **NOT READY FOR PHASE 9** because downstream real AI workflows remain invalid and SEC-010 is unresolved. Stop here; do not begin Phase 9 until directed.
+
+## Focused real AI generation remediation (2026-11-20)
+
+### Diagnosis
+
+- Reproduced the original failures with `qwen2.5:3b-instruct` and database-built contexts. Refinement emitted the context JSON itself, missing the required proposal fields and adding extra root keys. Acceptance used the wrong root key (`acceptanceCriteria`) and omitted required output fields; an unconstrained response also suggested unsupported password policy, login, and screen behavior. Test generation used `Functional` and `High` instead of exact enum values, and strings instead of `{name,value}` test-data objects. A later schema-valid response still invented login and settings/profile UI steps.
+- Root cause was under-specified prompts with generic JSON mode, plus no content grounding check for test-step claims. These were not truncation or JSON parser failures. Existing Zod validators rejected malformed structures.
+
+### Changes and live verification
+
+- Ollama client accepts a workflow-specific JSON Schema format while preserving JSON mode for other calls. Refinement, acceptance, and test-case generation send schemas matching their unchanged Zod contracts. Strict Zod validation remains the final application gate.
+- Refinement prompt `1.1.0` spells out the response shape and clarification-pair handling. Live API persisted a `PENDING_REVIEW` draft against source analysis and requirement version `1`; inference took about 7,942 ms.
+- Acceptance prompt `1.2.0` specifies the G/W/T contract and clarifies that expiry duration is not a delivery deadline. A lexical guard rejects substantive G/W/T terms absent from the requirement; one narrow “associated” paraphrase is accepted when the source names an account. Prompt v1.1 output with unsupported “valid” and “within 15 minutes” claims was rejected. The final live API persisted one source-grounded criterion as `DRAFT` against version `1` in about 3,398 ms; it was not approved.
+- Test-case prompt `1.3.0` requires source wording and exact enum/data shape. A conservative lexical guard rejects substantive terms absent from the approved criterion; this is not a semantic proof. Live API saved one `DRAFT` test case and a `SUCCEEDED` generation run against requirement/criterion version `1` in about 4,306 ms inference. An earlier v1.2 response with unsupported login/settings claims was rejected and saved no case.
+- Ollama was `0.40.16`; model was `qwen2.5:3b-instruct`. Each workflow has one successful live run after changes; this verifies execution and persistence, not reliable output quality. AI artifacts remain pending human review.
+- All temporary project/requirement records, analyses, drafts, criteria, test cases, fixtures, and runs were removed from `specforge_test`; related counts were verified as zero.
+
+### Focused regression and Git
+
+- PASS: focused unit tests (7 files / 27 tests), backend typecheck, test-case and Phase 5 workflow integration tests (7/7 combined). No full suite, Docker build, or full database suite was rerun.
+- Prisma is unchanged; SEC-010 remains open. Authentication, authorization, and Phase 9 were not started.
+- Focused task changes remain uncommitted on `main`. No commit or push was performed, as requested.

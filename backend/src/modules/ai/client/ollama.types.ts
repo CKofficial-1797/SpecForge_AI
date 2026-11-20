@@ -1,6 +1,7 @@
 export interface OllamaGenerateInput {
   model: string;
   messages: Array<{ role: "system" | "user"; content: string }>;
+  format?: "json" | Record<string, unknown>;
 }
 export interface OllamaClient {
   generate(input: OllamaGenerateInput): Promise<string>;

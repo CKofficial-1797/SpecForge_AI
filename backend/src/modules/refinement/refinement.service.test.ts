@@ -71,4 +71,9 @@ describe("refinement output contract", () => {
       ),
     ).toThrow();
   });
+  it("rejects a valid JSON echo of the input context instead of a refinement", () => {
+    expect(() =>
+      validateRefinementOutput(JSON.stringify(context), context),
+    ).toThrow();
+  });
 });

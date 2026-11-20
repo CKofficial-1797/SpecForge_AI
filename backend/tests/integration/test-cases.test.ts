@@ -47,7 +47,7 @@ async function fixture() {
       title: "Active user profile",
       given: "An active user exists",
       when: "The user signs in",
-      then: "The user's profile is shown",
+      then: "The user sees the profile",
       isResolved: true,
       notes: [] as unknown as Prisma.InputJsonValue,
       fingerprint: crypto.randomUUID().replaceAll("-", "").padEnd(64, "0"),
@@ -63,13 +63,12 @@ const testCaseOutput = (criterionId: string) =>
       {
         acceptanceCriterionId: criterionId,
         title: "Active user sees the profile",
-        description:
-          "Verify that an active user sees the profile after sign-in.",
+        description: "Active user profile",
         testType: "POSITIVE",
         preconditions: ["An active user exists"],
-        testSteps: ["Submit the sign-in form"],
-        testData: [{ name: "account", value: "[active user account]" }],
-        expectedResult: "The user's profile is shown",
+        testSteps: ["The user signs in"],
+        testData: [],
+        expectedResult: "The user sees the profile",
         priority: "HIGH",
       },
     ],
@@ -262,7 +261,7 @@ describe("Phase 6 test case workflow", () => {
     output.testCases.push({
       ...output.testCases[0],
       title: "Second profile scenario",
-      testSteps: ["Submit the sign-in form again"],
+      testSteps: ["The user signs in"],
     });
     const generated = await generateTestCases(
       requirement.id,

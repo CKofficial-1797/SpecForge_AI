@@ -511,18 +511,20 @@ describe("Phase 5 clarification, refinement, and criteria workflow", () => {
     const criteriaJson = JSON.stringify({
       criteria: [
         {
-          title: "Show profile identity",
-          given: "An active user is signed in.",
-          when: "The user opens their profile.",
-          then: "The profile shows the user's name and email.",
+          title: "View profile name",
+          given: "Active users.",
+          when: "Active users view their profile.",
+          then: "The user can view their profile name.",
           unresolvedDetails: [],
         },
         {
-          title: "Profile update response",
-          given: "An active user is signed in.",
-          when: "The user opens their profile.",
-          then: "The system responds appropriately.",
-          unresolvedDetails: ["The response time is not specified."],
+          title: "View profile email",
+          given: "Active users.",
+          when: "Active users view their profile.",
+          then: "The user can view their profile email.",
+          unresolvedDetails: [
+            "The behavior when an email address is unavailable is not specified.",
+          ],
         },
       ],
       limitations: ["No response-time target was supplied."],
