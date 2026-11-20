@@ -15,6 +15,9 @@ SpecForge addresses this problem by helping teams identify requirement gaps earl
 ## DEMO 
 https://drive.google.com/file/d/1zSROPvZzTtmVzh11pcWbinz55JezUz2F/view?usp=sharing
 
+## PPT 
+https://docs.google.com/presentation/d/1BZXT-QcFYrDnWi-GtmIX0RMZCompIkQQ/edit?usp=sharing&ouid=117341469879311529115&rtpof=true&sd=true
+
 ## Architecture
 
 <img width="1650" height="1242" alt="SpecForge High-Level System Architecture (1)" src="https://github.com/user-attachments/assets/b27490c8-1bca-42e2-a126-90f203b55a48" />
