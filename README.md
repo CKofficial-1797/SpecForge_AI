@@ -63,22 +63,26 @@ SpecForge addresses this problem by helping teams identify requirement gaps earl
 ### 1. Project Management
 View and manage all projects in one place.
 
-![Projects](https://github.com/user-attachments/assets/34d30361-5108-4470-ba9b-a52240d35611)
+<img width="1920" height="1010" alt="Screenshot (15)" src="https://github.com/user-attachments/assets/03faf0f6-f2aa-4fee-b986-c6593f45f7d4" />
 
 ### 2. Project Overview
 Review project details and its requirement summary.
 
-![Project Overview](https://github.com/user-attachments/assets/263b5f9b-e71a-4447-8e53-2d802de3c1fc)
+<img width="1920" height="956" alt="Screenshot (9)" src="https://github.com/user-attachments/assets/3bf44b06-d132-49fc-be1f-d04488b6e1f0" />
+
+
 
 ### 3. Requirement Management
 Browse and manage requirements within a project.
 
-![Requirements](https://github.com/user-attachments/assets/6cbf5588-a47a-4098-8df2-503ed02eb9a8)
+<img width="1920" height="949" alt="Screenshot (4)" src="https://github.com/user-attachments/assets/334df4ff-0272-462a-b581-df0baf8c60a6" />
+
 
 ### 4. Create Requirement
 Add a new requirement to a project.
 
-![Requirement Creation Form](https://github.com/user-attachments/assets/b2239329-e4b6-4c85-bb59-d2c51d5ec229)
+<img width="1626" height="821" alt="image" src="https://github.com/user-attachments/assets/0804a15c-7483-494f-a4af-854f19ac8ff3" />
+
 
 ### 5. Requirement Details
 View an individual requirement and its details.
@@ -88,62 +92,33 @@ View an individual requirement and its details.
 ### 6. Deterministic Validation
 Identify requirement quality issues using rule-based checks.
 
-![Deterministic Validation](https://github.com/user-attachments/assets/eb59e8cc-560f-4be3-9d51-861f25fa5908)
+<img width="1627" height="831" alt="image" src="https://github.com/user-attachments/assets/599e3603-afae-48e8-bae1-d48837518a83" />
+
 
 ### 7. AI-Assisted Analysis
 Use AI to identify semantic ambiguity and potential requirement issues.
 
-![AI Analysis](https://github.com/user-attachments/assets/a2be05a2-d1fb-4942-bfa8-f82465d39064)
+<img width="1626" height="827" alt="image" src="https://github.com/user-attachments/assets/f0c9717c-cc72-416f-ac40-aa19222dd935" />
+
 
 ### 8. Clarification Questions
 Review questions that help resolve unclear or incomplete requirements.
 
 ![Clarifications](https://github.com/user-attachments/assets/5d552762-f2b1-4f39-a76d-bc613886dc05)
 
-### 9. Refinement Review
+### 9. Requirement Refinement Review
 Review a proposed requirement refinement before approval.
 
-![Refinement Review](https://github.com/user-attachments/assets/d039c263-3ed8-4fc1-88dd-23c8778967dd)
+<img width="1897" height="873" alt="image" src="https://github.com/user-attachments/assets/d64dcf1e-533a-43d4-bb1f-47e4e27bd732" />
+
 
 ### 10. Requirement Version History
 Inspect previous versions of a requirement.
 
 ![Version History](https://github.com/user-attachments/assets/de8c3de7-c433-4915-9e2b-0f871067d047)
 
-### 11. Traceability Overview
-View the relationships between requirements and downstream engineering artifacts.
 
-![Traceability Overview](https://github.com/user-attachments/assets/f976345d-1234-45b5-86c3-dd0058eb4be2)
 
-### 12. Acceptance Criteria
-Acceptance criteria workspace.
-
-![Acceptance Criteria](https://github.com/user-attachments/assets/ba6ba69e-f3a0-4072-9761-134f1aa5e9ad)
-
-### 13. Test Cases
-Test case workspace.
-
-![Test Cases](https://github.com/user-attachments/assets/a530cceb-4319-4c84-b387-c3980c3e24bb)
-
-### 14. Traceability Matrix
-Explore links between requirements, acceptance criteria, and test cases.
-
-![Traceability Matrix](https://github.com/user-attachments/assets/b8a2eedf-b66e-4911-89bc-216e6772f216)
-
-### 15. Coverage and Gap Analysis
-Review coverage status and identify missing testing evidence.
-
-![Coverage and Gaps](https://github.com/user-attachments/assets/591146f0-dab7-4fd4-8ce6-112b93fc70d2)
-
-### 16. Human Review Status
-Track the review and approval status of generated artifacts.
-
-![Human Review Status](https://github.com/user-attachments/assets/f7f4d5d1-e46a-47d9-a838-5292fbdd10b5)
-
-### 17. Project Summary
-Review the project closing summary.
-
-![Project Summary](https://github.com/user-attachments/assets/dc815af6-433e-4c9c-967a-ec80df480dc2)
 
 
 
