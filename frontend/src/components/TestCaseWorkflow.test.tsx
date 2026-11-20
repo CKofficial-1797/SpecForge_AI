@@ -69,6 +69,8 @@ describe("test case workflow UI", () => {
       available: true,
       modelAvailable: true,
       model: "fixture-model",
+      provider: "ollama",
+      modelAvailabilityKnown: true,
     });
     vi.spyOn(testApi, "listTestCases").mockResolvedValue([testCase]);
     vi.spyOn(testApi, "listTestGenerationRuns").mockResolvedValue([]);
@@ -114,11 +116,13 @@ describe("test case workflow UI", () => {
       available: false,
       modelAvailable: false,
       model: null,
+      provider: "ollama",
+      modelAvailabilityKnown: true,
     });
     renderWorkflow();
     expect(
       await screen.findByText(
-        /Live generation needs the configured local Ollama runtime/,
+        /Live generation needs a configured AI provider and model/,
       ),
     ).toBeInTheDocument();
     expect(

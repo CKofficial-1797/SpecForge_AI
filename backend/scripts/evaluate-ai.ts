@@ -5,7 +5,7 @@ import type { AnalysisContext } from "../src/modules/ai/harness/analysis-context
 // This script does not connect to PostgreSQL; satisfy the shared app config only
 // when the evaluator is run without a DATABASE_URL in its environment.
 process.env.DATABASE_URL ??= "postgresql://localhost/specforge-evaluation";
-const { env } = await import("../src/config/env.js");
+const { env, isAiConfigured } = await import("../src/config/env.js");
 const { HttpOllamaClient } =
   await import("../src/modules/ai/client/ollama.client.js");
 const { buildAnalysisMessages } =
@@ -30,13 +30,13 @@ const dataset = JSON.parse(
   ),
 ) as { datasetVersion: string; promptVersion: string; cases: EvaluationCase[] };
 
-if (!env.OLLAMA_ENABLED || !env.OLLAMA_MODEL) {
+if (!isAiConfigured || !env.OLLAMA_MODEL) {
   console.log(
     JSON.stringify(
       {
         status: "BLOCKED",
         reason:
-          "Set OLLAMA_ENABLED=true and OLLAMA_MODEL after installing and verifying a local model.",
+          "Configure AI_PROVIDER and OLLAMA_MODEL; local mode also requires OLLAMA_ENABLED=true, cloud mode requires OLLAMA_API_KEY.",
         model: env.OLLAMA_MODEL ?? null,
         datasetVersion: dataset.datasetVersion,
         promptVersion: dataset.promptVersion,

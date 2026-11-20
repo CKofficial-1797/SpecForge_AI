@@ -1,4 +1,4 @@
-import { env } from "../../config/env.js";
+import { env, isAiConfigured } from "../../config/env.js";
 import { prisma } from "../../config/database.js";
 import { Prisma } from "../../generated/prisma/client.js";
 import { ApiError } from "../../utils/api-error.js";
@@ -53,7 +53,7 @@ async function runGeneration(requirementId: string, client: OllamaClient) {
       status: "PENDING",
     },
   });
-  if (!env.OLLAMA_ENABLED || !env.OLLAMA_MODEL) {
+  if (!isAiConfigured || !env.OLLAMA_MODEL) {
     await prisma.testGenerationRun.update({
       where: { id: run.id },
       data: {
@@ -65,7 +65,7 @@ async function runGeneration(requirementId: string, client: OllamaClient) {
     throw new ApiError(
       503,
       "AI_UNAVAILABLE",
-      "Live test case generation requires a configured local Ollama model. Existing requirements and approved criteria remain available.",
+      "AI test case generation requires a configured provider and model. Existing requirements and approved criteria remain available.",
     );
   }
   const started = Date.now();

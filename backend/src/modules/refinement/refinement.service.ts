@@ -1,4 +1,4 @@
-import { env } from "../../config/env.js";
+import { env, isAiConfigured } from "../../config/env.js";
 import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
 import { ApiError } from "../../utils/api-error.js";
@@ -52,8 +52,8 @@ export async function createRefinementDraft(
   sourceAnalysisId: string,
   client: OllamaClient = defaultClient,
 ) {
-  if (!env.OLLAMA_ENABLED || !env.OLLAMA_MODEL)
-    throw new ApiError(503, "AI_UNAVAILABLE", "Local AI is not configured");
+  if (!isAiConfigured || !env.OLLAMA_MODEL)
+    throw new ApiError(503, "AI_UNAVAILABLE", "AI provider is not configured");
   const { context, unresolvedQuestionText } = await buildRefinementContext(
     requirementId,
     sourceAnalysisId,

@@ -93,7 +93,7 @@ export function TestCaseWorkflow({
       }));
     },
   });
-  const available = health.data?.available && health.data.modelAvailable;
+  const available = health.data?.available;
   const error =
     generation.error ?? update.error ?? approve.error ?? reject.error;
   const editCase = (
@@ -127,21 +127,23 @@ export function TestCaseWorkflow({
         </button>
       </div>
       {health.isLoading ? (
-        <p className="ai-health-note">Checking local AI availability…</p>
+        <p className="ai-health-note">Checking AI provider configuration…</p>
       ) : !available ? (
         <p className="ai-health-note unavailable">
-          Live generation needs the configured local Ollama runtime and model.
-          Existing test cases and approved criteria remain available.
+          Live generation needs a configured AI provider and model. Existing
+          test cases and approved criteria remain available.
         </p>
       ) : (
         <p className="ai-health-note">
-          Local model available: {health.data?.model ?? "configured model"}
+          {health.data?.modelAvailabilityKnown
+            ? `Local model available: ${health.data.model ?? "configured model"}`
+            : `Ollama Cloud configured: ${health.data?.model ?? "configured model"}. Remote model availability is checked when a request runs.`}
         </p>
       )}
       {health.isError && (
         <p className="ai-health-note unavailable">
           AI availability could not be checked. Live generation is unavailable
-          until the local runtime is reachable.
+          until the configured provider is reachable.
         </p>
       )}
       {error && (

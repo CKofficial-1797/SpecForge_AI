@@ -231,3 +231,29 @@ Before Phase 3 implementation, the working tree was clean at pushed commit `1913
 - PASS: focused unit tests (7 files / 27 tests), backend typecheck, test-case and Phase 5 workflow integration tests (7/7 combined). No full suite, Docker build, or full database suite was rerun.
 - Prisma is unchanged; SEC-010 remains open. Authentication, authorization, and Phase 9 were not started.
 - Focused task changes remain uncommitted on `main`. No commit or push was performed, as requested.
+
+## Environment-based local and Ollama Cloud provider configuration (2026-11-20)
+
+- Added backend-only `AI_PROVIDER=ollama|ollama-cloud` selection through the existing shared `OllamaClient`; no request or frontend setting can select a provider. Local mode retains `OLLAMA_ENABLED` for compatibility. Cloud mode requires `OLLAMA_API_KEY` and `OLLAMA_MODEL`; missing cloud credentials produce a safe unavailable error before network access.
+- Local mode uses configurable `OLLAMA_BASE_URL` and `/api/chat`; direct Cloud mode uses `https://ollama.com/api/chat` with a backend-only bearer header. Keys are not logged or stored in generation history. Compose passes provider variables only to the backend; `.env` remains ignored and excluded from Docker build context. Compose's local default uses `host.docker.internal`; cloud mode does not need a local Ollama service.
+- Ollama's current docs say cloud models do not support structured outputs. Cloud requests omit `format`; shared prompts, strict JSON parsing, Zod schemas, grounding checks, persistence, and human approval remain unchanged. Cloud health reports configured state and leaves model availability unknown until a real inference; it does not claim remote connectivity.
+- `ollama.exe` version `0.40.16` and `qwen2.5:3b-instruct` digest `357c53fb659c` were confirmed by `ollama list`. The user created the ignored root `.env` with `AI_PROVIDER=ollama-cloud`, model `gemma4:31b`, and a key; the key was never printed or logged. A process-level `AI_PROVIDER=ollama` initially overrode the `.env` setting, so verification commands explicitly selected the desired provider. Environment precedence is documented.
+- A real local client request succeeded after correcting the path regression: `/api/chat`, JSON parsed, 5,383 ms. An earlier real evaluator attempt returned 14 `AI_MODEL_UNAVAILABLE` errors due the missing `/api`; the full post-fix evaluator was blocked by command approval. The real Cloud request returned `AI_QUOTA_EXCEEDED` (HTTP 402), so no Cloud inference was produced. The five live application workflow APIs remain unverified after the provider change. See [AI_EVALUATION.md](docs/AI_EVALUATION.md) for details.
+- `docker compose config --quiet`: **PASSED**. Docker runtime/networking check: **BLOCKED** because the Docker engine pipe denied access from the current shell. Focused backend provider/config/workflow/schema/grounding tests: **48 passed across 10 files**. Focused frontend workflow tests: **6 passed**. Frontend/backend TypeScript checks and workspace lint: **PASSED**. Prettier check on changed source/docs: **PASSED**. No full test suites or Docker image builds were repeated.
+- No Prisma schema/dependency changes. No auth, authorization, Phase 9, or provider-selection UI work. The modified provider flow remains uncommitted and unpushed as requested.
+
+### Provider verification status
+
+| Check                                                              | Status  | Notes                                                                        |
+| ------------------------------------------------------------------ | ------- | ---------------------------------------------------------------------------- |
+| Environment provider selection / unsupported provider rejection    | PASSED  | Zod config tests                                                             |
+| Local provider request shape and route                             | PASSED  | Mocked regression test confirms `/api/chat`; real client inference succeeded |
+| Cloud bearer auth, status mapping, key omission, response contract | PASSED  | Mocked HTTP tests only                                                       |
+| Real local client inference after route fix                        | PASSED  | Qwen2.5 3B returned parseable JSON in 5,383 ms                               |
+| Full local evaluator / five live workflow APIs                     | NOT RUN | Full evaluator approval blocked; no disposable DB/API runtime was available  |
+| Real Cloud inference                                               | FAILED  | One request returned `AI_QUOTA_EXCEEDED` (HTTP 402); no inference result     |
+| Five live workflow API checks on updated provider boundary         | NOT RUN | Earlier live results predate this change                                     |
+| Docker Compose interpolation/config                                | PASSED  | `docker compose config --quiet`                                              |
+| Docker-to-host Ollama networking                                   | BLOCKED | Docker engine pipe denied access from this shell                             |
+
+Suggested commit message: `feat: add environment-based local and cloud Ollama providers`.

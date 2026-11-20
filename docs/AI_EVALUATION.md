@@ -47,4 +47,14 @@ Focused regression: 7 unit test files / 27 tests passed; backend typecheck passe
 
 ## Metrics and limitations
 
+Provider configuration is backend-only (`AI_PROVIDER=ollama` or `AI_PROVIDER=ollama-cloud`). CI continues to mock the shared client. Direct Ollama Cloud currently does not support the structured-output API feature; SpecForge omits that request option in cloud mode and continues to reject any response that fails the same parsing, schemas, grounding, and output guards. No cloud inference result is claimed unless a configured key was actually used. See [AI provider configuration](AI_PROVIDER_CONFIGURATION.md).
+
 Structured validity is schema/guard-valid responses divided by attempts. Latency is client inference time. Marker checks only measure the planted strings in this small corpus. Label precision/recall and semantic grounding require independent domain review; valid JSON alone is not evidence of semantic quality. Prompt wording cannot eliminate instruction injection. AI output remains untrusted and human review is required.
+
+## Provider configuration change verification (2026-11-20)
+
+- Local Ollama executable and `qwen2.5:3b-instruct` were confirmed installed (`0.40.16`, model digest `357c53fb659c`) through an elevated `ollama list` command. A post-fix real client call to local `/api/chat` returned parseable JSON in 5,383 ms. The 14-case evaluator and five live application workflows remain **NOT RUN** against the changed provider boundary.
+- The first real evaluator run after introducing provider selection failed immediately: all 14 calls returned `AI_MODEL_UNAVAILABLE` because the new shared client formed local `/chat` instead of `/api/chat`. The client now uses `/api/chat` locally and `https://ollama.com/api/chat` in cloud mode; focused unit assertions cover both URLs. The post-fix full evaluator was blocked by command approval; no evaluation score is claimed from it.
+- A cloud key and `gemma4:31b` were configured in the ignored root `.env`. One real Cloud request reached Ollama and was mapped to `AI_QUOTA_EXCEEDED` (HTTP 402); it produced no inference result. Cloud use is **FAILED / BLOCKED pending available account quota or access**. The key was not logged or displayed. The client unit tests additionally cover bearer-header use, missing credentials, authentication/quota/rate-limit/model errors, omission of the unsupported Cloud `format` parameter, malformed responses, and credential-safe logs.
+- Full live API runs for analysis, clarification generation/import, refinement, acceptance criteria, and test-case generation were **NOT RUN** against the changed provider boundary. Earlier live workflow results above predate this provider-routing change and do not verify it.
+- Docker Compose configuration validated, but Docker Desktop was unavailable, so container-to-host Ollama networking was not exercised. Focused tests and typecheck results are recorded in the current `HANDOFF.md` section.

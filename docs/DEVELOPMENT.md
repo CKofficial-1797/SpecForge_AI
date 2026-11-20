@@ -35,12 +35,12 @@ The API runs validation server-side with `POST /api/requirements/:requirementId/
 
 ## Optional Ollama AI analysis
 
-AI is disabled by default. Continue to run the app normally without Ollama; CRUD, version history, and deterministic validation remain available. To enable local semantic analysis:
+AI is optional. Continue to run the app without an inference provider; CRUD, version history, and deterministic validation remain available. For provider details, see [AI provider configuration](AI_PROVIDER_CONFIGURATION.md). To enable local semantic analysis:
 
 1. Install Ollama locally and verify it responds at `http://localhost:11434`.
 2. Choose a Qwen2.5 Instruct tag appropriate for your hardware, install it with Ollama, and check it appears in `ollama list`. SpecForge does not pick or download a model automatically.
-3. Set `OLLAMA_ENABLED=true`, `OLLAMA_MODEL=<installed-tag>`, and optionally `OLLAMA_BASE_URL`, `OLLAMA_TIMEOUT_MS`, and `OLLAMA_MAX_RETRIES` in the backend environment. Keep Ollama bound to localhost; do not expose its port publicly.
-4. Check `GET /api/ai/health`; it reports endpoint and configured-model availability. A successful health response does not guarantee semantically correct model output.
+3. Set `AI_PROVIDER=ollama`, `OLLAMA_ENABLED=true`, `OLLAMA_MODEL=<installed-tag>`, and optionally `OLLAMA_BASE_URL`, `OLLAMA_TIMEOUT_MS`, and `OLLAMA_MAX_RETRIES` in the backend environment. Keep Ollama bound to localhost; do not expose its port publicly.
+4. Check `GET /api/ai/health`; local mode reports endpoint and configured-model availability. Cloud mode reports configuration and verifies key/model on inference. A successful health response does not guarantee semantically correct model output.
 5. Run `POST /api/requirements/:requirementId/analyze`. Read history at `GET /api/requirements/:requirementId/ai-analyses` and a record at `GET /api/requirements/:requirementId/ai-analyses/:analysisId`.
 
 For CI and unit tests, inject a mocked `OllamaClient`; ordinary tests require no Ollama server or model. Tests for actual local connectivity are separate and should only run when a developer has installed a compatible model. `AI_CONTEXT_MAX_RELATED` and `AI_CONTEXT_MAX_CHARS` bound the same-project non-archived context. Troubleshooting: verify the configured URL, model tag from `ollama list`, available memory, and timeout. If Ollama is stopped or the model is absent, analysis requests return a safe unavailable response and deterministic validation continues. Never paste secrets in requirement text; prompts intentionally do not include application secrets.
@@ -55,7 +55,7 @@ Generate Given/When/Then criteria from the canonical current requirement after u
 
 ## Phase 6 test case workflow
 
-On a requirement detail page, inspect its approved criteria, generate test case drafts when local AI health reports an available model, review deterministic findings, edit drafts, and explicitly approve or reject each case. Draft edits create a revision snapshot. Generation uses approved, resolved criteria from the exact current requirement version; historical cases remain readable and cannot be approved. See [test case generation API, lifecycle, prompt and limits](TEST_CASE_GENERATION.md). CI uses mock fixtures only; installing Ollama is not required, and no real model inference has been verified.
+On a requirement detail page, inspect its approved criteria, generate test case drafts when the configured AI provider is available, review deterministic findings, edit drafts, and explicitly approve or reject each case. Draft edits create a revision snapshot. Generation uses approved, resolved criteria from the exact current requirement version; historical cases remain readable and cannot be approved. See [test case generation API, lifecycle, prompt and limits](TEST_CASE_GENERATION.md). CI uses mock fixtures only; installing Ollama is not required.
 
 Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`, and `npm run build`. Integration tests are isolated from the development database: create a `specforge_test` database and set `TEST_DATABASE_URL`, for example `postgresql://specforge:specforge_local@localhost:5432/specforge_test?schema=public`, then run `npm run test:integration --workspace backend`. The suite refuses any database whose name is not exactly `specforge_test`. For Docker, run `docker compose config`, build images, start services, and check `http://localhost:3000/api/health`.
 
@@ -72,7 +72,7 @@ Project details provide a traceability matrix and coverage/approval overview. To
 
 ## Phase 8 security, health, and local AI evaluation
 
-On Windows, install Ollama using the [official Windows installer](https://ollama.com/download/windows). If Windows requests administrator approval, complete the installation interactively. This machine check found about 15.3 GiB system memory and an RTX 3050 Laptop GPU with 6 GiB VRAM. A Qwen2.5 3B variant is the conservative starting point; the official Ollama library lists roughly 1.9 GB for the 3B quantized model and 4.7 GB for 7B, before runtime/context overhead. No model is locked in the repository and AI stays disabled until local verification.
+On Windows, install Ollama using the [official Windows installer](https://ollama.com/download/windows). If Windows requests administrator approval, complete the installation interactively. This machine has an RTX 3050 Laptop GPU with 6 GiB VRAM; Ollama `0.40.16` and `qwen2.5:3b-instruct` were later installed and listed locally. Check current available memory and `ollama list` before changing models. Local inference is the option for keeping requirement context on this machine; Cloud mode sends supplied context to Ollama Cloud.
 
 After installation, open a new PowerShell window and run:
 

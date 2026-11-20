@@ -1,4 +1,4 @@
-import { env } from "../../../config/env.js";
+import { env, isAiConfigured } from "../../../config/env.js";
 import type { OllamaClient, OllamaGenerateInput } from "./ollama.types.js";
 
 export class OllamaError extends Error {
@@ -11,15 +11,27 @@ export class OllamaError extends Error {
   }
 }
 
+export interface OllamaClientConfig {
+  provider: "ollama" | "ollama-cloud";
+  apiKey?: string;
+  model?: string;
+  baseUrl: string;
+  timeoutMs: number;
+  maxRetries: number;
+  enabled: boolean;
+}
+
 export class HttpOllamaClient implements OllamaClient {
   constructor(
     private readonly fetcher: typeof fetch = fetch,
-    private readonly config = {
-      enabled: env.OLLAMA_ENABLED,
+    private readonly config: OllamaClientConfig = {
+      provider: env.AI_PROVIDER,
+      apiKey: env.OLLAMA_API_KEY,
       model: env.OLLAMA_MODEL,
       baseUrl: env.OLLAMA_BASE_URL,
       timeoutMs: env.OLLAMA_TIMEOUT_MS,
       maxRetries: env.OLLAMA_MAX_RETRIES,
+      enabled: isAiConfigured,
     },
   ) {}
 
@@ -52,26 +64,59 @@ export class HttpOllamaClient implements OllamaClient {
   }
 
   private async generateWithRetries(input: OllamaGenerateInput) {
+    if (this.config.provider === "ollama-cloud" && !this.config.apiKey)
+      throw new OllamaError(
+        "AI_CREDENTIALS_MISSING",
+        "Ollama Cloud is selected but OLLAMA_API_KEY is not configured",
+        503,
+      );
     if (!this.config.enabled || !this.config.model)
       throw new OllamaError("AI_UNAVAILABLE", "AI analysis is not configured");
     let attempt = 0;
     while (true) {
       try {
+        const cloud = this.config.provider === "ollama-cloud";
+        const headers: Record<string, string> = {
+          "content-type": "application/json",
+        };
+        if (cloud && this.config.apiKey)
+          headers.authorization = `Bearer ${this.config.apiKey}`;
+        const body: Record<string, unknown> = {
+          model: input.model,
+          messages: input.messages,
+          stream: false,
+          options: { temperature: 0 },
+        };
+        // Ollama Cloud currently does not support the structured-output format parameter.
+        if (!cloud) body.format = input.format ?? "json";
+        const baseUrl = cloud ? "https://ollama.com/api" : this.config.baseUrl;
         const response = await this.fetcher(
-          `${this.config.baseUrl.replace(/\/+$/, "")}/api/chat`,
+          `${baseUrl.replace(/\/+$/, "")}${cloud ? "/chat" : "/api/chat"}`,
           {
             method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({
-              model: input.model,
-              messages: input.messages,
-              stream: false,
-              format: input.format ?? "json",
-              options: { temperature: 0 },
-            }),
+            headers,
+            body: JSON.stringify(body),
             signal: AbortSignal.timeout(this.config.timeoutMs),
           },
         );
+        if (response.status === 401 || response.status === 403)
+          throw new OllamaError(
+            "AI_AUTHENTICATION_FAILED",
+            "Ollama Cloud authentication failed. Check OLLAMA_API_KEY.",
+            503,
+          );
+        if (response.status === 402)
+          throw new OllamaError(
+            "AI_QUOTA_EXCEEDED",
+            "Ollama Cloud usage quota is unavailable",
+            503,
+          );
+        if (response.status === 429)
+          throw new OllamaError(
+            "AI_RATE_LIMITED",
+            "Ollama request rate limit reached",
+            429,
+          );
         if (response.status === 404)
           throw new OllamaError(
             "AI_MODEL_UNAVAILABLE",
@@ -134,6 +179,15 @@ export class HttpOllamaClient implements OllamaClient {
     const model = this.config.model ?? null;
     if (!this.config.enabled || !model)
       return { available: false, modelAvailable: false, model };
+    if (this.config.provider === "ollama-cloud") {
+      // Ollama Cloud documents chat inference but no non-billable model-list health API.
+      // This reports configuration readiness; actual key/model validity is checked on inference.
+      return {
+        available: Boolean(this.config.apiKey),
+        modelAvailable: null,
+        model,
+      };
+    }
     try {
       const response = await this.fetcher(
         `${this.config.baseUrl.replace(/\/+$/, "")}/api/tags`,

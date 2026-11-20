@@ -31,10 +31,13 @@ $result.message.content | ConvertFrom-Json
 
 ## SpecForge configuration and verification
 
+Local mode now uses `AI_PROVIDER=ollama`; cloud mode is documented in [AI_PROVIDER_CONFIGURATION.md](AI_PROVIDER_CONFIGURATION.md). Provider selection is backend-only.
+
 For local backend inference, set in the untracked repository-root `.env` and restart the backend:
 
 ```dotenv
 OLLAMA_ENABLED=true
+AI_PROVIDER=ollama
 OLLAMA_MODEL=qwen2.5:3b-instruct
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_TIMEOUT_MS=180000

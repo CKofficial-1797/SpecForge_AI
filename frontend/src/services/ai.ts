@@ -34,8 +34,10 @@ export interface AiAnalysis {
 export interface AiHealth {
   enabled: boolean;
   available: boolean;
-  modelAvailable: boolean;
+  modelAvailable: boolean | null;
   model: string | null;
+  provider: "ollama" | "ollama-cloud";
+  modelAvailabilityKnown: boolean;
 }
 export async function getAiHealth(): Promise<AiHealth> {
   return (await apiRequest<{ data: AiHealth }>("/ai/health")).data;

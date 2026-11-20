@@ -1,4 +1,4 @@
-import { env } from "../../../config/env.js";
+import { env, isAiConfigured } from "../../../config/env.js";
 import { OllamaError } from "../client/ollama.client.js";
 import type { OllamaClient } from "../client/ollama.types.js";
 import { AI_SCHEMA_VERSION } from "../ai.constants.js";
@@ -47,7 +47,7 @@ async function runAnalysis(requirementId: string, client: OllamaClient) {
       contextVersions: supplied.map(({ id, version }) => ({ id, version })),
     },
   });
-  if (!env.OLLAMA_ENABLED || !env.OLLAMA_MODEL) {
+  if (!isAiConfigured || !env.OLLAMA_MODEL) {
     await prisma.aiAnalysis.update({
       where: { id: record.id },
       data: {
@@ -59,7 +59,7 @@ async function runAnalysis(requirementId: string, client: OllamaClient) {
     throw new ApiError(
       503,
       "AI_UNAVAILABLE",
-      "AI analysis is not configured. Set OLLAMA_ENABLED and OLLAMA_MODEL after verifying a local Ollama model.",
+      "AI analysis is not configured. Set AI_PROVIDER and OLLAMA_MODEL; Ollama Cloud also requires OLLAMA_API_KEY.",
     );
   }
   const started = Date.now();

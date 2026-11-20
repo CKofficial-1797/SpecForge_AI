@@ -34,6 +34,8 @@ describe("clarification and refinement workflow UI", () => {
       available: false,
       modelAvailable: false,
       model: null,
+      provider: "ollama",
+      modelAvailabilityKnown: true,
     });
     vi.spyOn(aiApi, "listAiAnalyses").mockResolvedValue({
       data: [

@@ -41,11 +41,11 @@ Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`,
 
 The requirement detail page can run validation, show saved report findings and suggested next actions, and inspect report history. Project details show analyzed, error, warning, clean, and unanalyzed requirement counts for current requirement versions. Heuristics are warnings and may need human review; exact duplicates compare normalized title and description, and conflict checks support only stated authentication and session-duration patterns.
 
-## Optional local AI analysis
+## Optional AI analysis (local Ollama or Ollama Cloud)
 
-SpecForge can use a local Ollama model for semantic findings and product-owner clarification questions. Ollama is optional; CRUD, version history, and deterministic validation work without it. AI content is treated as untrusted, validated before persistence, and never changes requirement content or deterministic results. Confidence is a model estimate, not a probability. Semantic analysis may miss issues or raise incorrect suggestions.
+SpecForge can use local Ollama or Ollama Cloud for semantic findings and product-owner clarification questions. AI is optional; CRUD, version history, and deterministic validation work without it. AI content is treated as untrusted, validated before persistence, and never changes requirement content or deterministic results. Confidence is a model estimate, not a probability. Semantic analysis may miss issues or raise incorrect suggestions.
 
-The AI integration is disabled by default. After installing Ollama and verifying a suitable Qwen2.5 Instruct model on your machine, set `OLLAMA_ENABLED=true` and `OLLAMA_MODEL` to the exact installed model tag. Configure `OLLAMA_BASE_URL`, `OLLAMA_TIMEOUT_MS`, and `OLLAMA_MAX_RETRIES` as needed. The application does not download models or send requirement data to cloud providers. Health is available at `/api/ai/health`. See [local AI setup](docs/OLLAMA_SETUP.md) and the [development guide](docs/DEVELOPMENT.md#optional-ollama-ai-analysis).
+The AI integration is optional and provider selection is backend-only through `AI_PROVIDER`. For local mode, install Ollama and Qwen2.5, then configure `AI_PROVIDER=ollama`, `OLLAMA_ENABLED=true`, `OLLAMA_BASE_URL`, and `OLLAMA_MODEL`. For cloud mode, configure `AI_PROVIDER=ollama-cloud`, `OLLAMA_API_KEY`, and a currently supported `OLLAMA_MODEL`; no local Ollama install or model download is needed. Cloud inference sends the supplied requirement context to Ollama Cloud. Cloud models currently do not support Ollama structured output mode, so SpecForge still validates the returned JSON with its unchanged schemas and guards. Use `/api/ai/health` for configuration status; remote cloud model/key availability is confirmed when an inference request runs. See [AI provider configuration](docs/AI_PROVIDER_CONFIGURATION.md), [local Ollama setup](docs/OLLAMA_SETUP.md), and the [development guide](docs/DEVELOPMENT.md#optional-ollama-ai-analysis).
 
 ## Clarification, refinement, and acceptance criteria
 
@@ -55,7 +55,7 @@ After answers have been incorporated into an approved requirement version, gener
 
 ## AI test case generation
 
-Generate draft test cases only from resolved acceptance criteria explicitly approved for the current requirement version. Each case keeps source criterion and version links, shows deterministic findings, and needs a separate human approval; draft edits have snapshots. The workflow reuses optional local Ollama. If Ollama is unavailable, no cases are fabricated and the rest of the application remains usable. Live model inference is unverified here. See [test case generation](docs/TEST_CASE_GENERATION.md).
+Generate draft test cases only from resolved acceptance criteria explicitly approved for the current requirement version. Each case keeps source criterion and version links, shows deterministic findings, and needs a separate human approval; draft edits have snapshots. The workflow reuses the configured optional AI provider. If inference is unavailable, no cases are fabricated and the rest of the application remains usable. See [test case generation](docs/TEST_CASE_GENERATION.md).
 
 ## Traceability and coverage
 

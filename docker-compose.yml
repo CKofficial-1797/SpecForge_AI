@@ -30,6 +30,13 @@ services:
       PORT: 3000
       FRONTEND_ORIGINS: http://localhost:8080,http://localhost:5173
       DATABASE_URL: postgresql://${POSTGRES_USER:-specforge}:${POSTGRES_PASSWORD:-specforge_local}@db:5432/${POSTGRES_DB:-specforge}?schema=public
+      AI_PROVIDER: ${AI_PROVIDER:-ollama}
+      OLLAMA_ENABLED: ${OLLAMA_ENABLED:-false}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-}
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
+      OLLAMA_TIMEOUT_MS: ${OLLAMA_TIMEOUT_MS:-180000}
+      OLLAMA_MAX_RETRIES: ${OLLAMA_MAX_RETRIES:-1}
     depends_on:
       db:
         condition: service_healthy

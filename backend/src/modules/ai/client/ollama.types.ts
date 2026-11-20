@@ -7,7 +7,7 @@ export interface OllamaClient {
   generate(input: OllamaGenerateInput): Promise<string>;
   health(): Promise<{
     available: boolean;
-    modelAvailable: boolean;
+    modelAvailable: boolean | null;
     model: string | null;
   }>;
 }
