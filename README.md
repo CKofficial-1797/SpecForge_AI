@@ -12,6 +12,9 @@ Poorly defined requirements lead to incorrect assumptions, development rework, u
 
 SpecForge addresses this problem by helping teams identify requirement gaps early, clarify stakeholder expectations, and maintain a clear connection between requirements and testing.
 
+## DEMO 
+https://drive.google.com/file/d/1zSROPvZzTtmVzh11pcWbinz55JezUz2F/view?usp=sharing
+
 ## Architecture
 
 <img width="1650" height="1242" alt="SpecForge High-Level System Architecture (1)" src="https://github.com/user-attachments/assets/b27490c8-1bca-42e2-a126-90f203b55a48" />
