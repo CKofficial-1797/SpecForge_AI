@@ -178,11 +178,10 @@ On Windows PowerShell, use `Copy-Item .env.example .env` for the environment-fil
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:3000
 
-## Optional AI Setup
+##  AI Setup
 
-AI is optional. Project management, requirement versioning, and deterministic validation can be used without AI inference.
 
-### Local Ollama
+### Local Ollama (Preferred ,if there is no premium api key)
 
 Install [Ollama](https://ollama.com/) and download the model:
 
@@ -216,7 +215,7 @@ OLLAMA_API_KEY=<YOUR_OLLAMA_API_KEY>
 OLLAMA_MODEL=<SUPPORTED_CLOUD_MODEL>
 ```
 
-Get an API key from [Ollama](https://ollama.com/settings/keys). Never commit API keys or `.env` files. Cloud inference sends the supplied requirement context to Ollama Cloud.
+Get an API key from [Ollama](https://ollama.com/settings/keys). 
 
 ## Engineering Principles
 
