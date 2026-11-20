@@ -1,81 +1,260 @@
-# SpecForge_AI
+# SpecForge AI
 
-**From Requirements to Reliable Software.**
+### From Requirements to Reliable Software.
 
-SpecForge is an engineering quality and requirement intelligence platform. It supports project and requirement management, immutable requirement versions, deterministic validation, optional local AI-assisted semantic analysis, clarification and refinement review, and version-bound acceptance criteria. AI output remains a draft until a person explicitly approves it.
+SpecForge is an engineering quality and requirement intelligence platform that helps transform incomplete and ambiguous software requirements into clear, testable, and traceable specifications.
 
-## Stack and architecture
+It combines deterministic validation with optional AI-assisted analysis. AI-generated suggestions remain drafts until reviewed and explicitly approved by a human.
 
-React, TypeScript, Vite, Tailwind CSS, React Router, and TanStack Query power the frontend. The backend uses Node.js, Express, TypeScript, and Zod 4. PostgreSQL runs locally through Docker Compose; Prisma ORM 7 with its PostgreSQL driver adapter manages schema and migrations. The project is a modular monolith with separate frontend and backend packages. See [architecture](docs/ARCHITECTURE.md) and [decisions](docs/DECISIONS.md).
+## The Problem
 
-## Prerequisites
+Software requirements are often vague or incomplete. This leads to assumptions, misunderstandings, unclear acceptance criteria, and difficult testing.
 
-Node.js 22+, npm, Git, and Docker Desktop with its Compose engine running.
+SpecForge helps teams identify requirement quality issues early and turn requirements into verifiable engineering artifacts.
 
-## Docker quick start
+## Architecture
 
-```sh
-docker compose up --build
-```
+<img width="1650" height="1242" alt="SpecForge High-Level System Architecture (1)" src="https://github.com/user-attachments/assets/b27490c8-1bca-42e2-a126-90f203b55a48" />
 
-Frontend: `http://localhost:8080`. API health: `http://localhost:3000/api/health`. PostgreSQL persists in the named `postgres_data` volume. The backend applies committed Prisma migrations on startup.
+## Key Features
 
-Copy `.env.example` to `.env` to customize local values. Its credentials are for local development only; never use them for a public deployment.
+- **Project and requirement management** — create, edit, archive, and organize projects and requirements.
+- **Requirement versioning** — preserve immutable versions and detect stale updates.
+- **Deterministic validation** — identify missing information, vague language, measurability issues, duplicates, and selected potential conflicts.
+- **AI-assisted analysis** — identify semantic ambiguity and suggest clarification questions.
+- **Clarification and refinement** — collect answers and prepare requirement drafts for human review.
+- **Acceptance criteria** — generate and review Given/When/Then criteria.
+- **Test case generation** — generate draft test cases from approved acceptance criteria.
+- **Traceability and coverage** — connect requirements, acceptance criteria, and test cases using version-aware links.
 
-## Local development
+## Technology Stack
 
-```sh
+| Layer | Technologies |
+|---|---|
+| Frontend | React, TypeScript, Vite |
+| UI | Tailwind CSS, shadcn/ui |
+| Routing & State | React Router, TanStack Query |
+| Backend | Node.js, Express.js, TypeScript |
+| Validation | Zod 4 |
+| Database | PostgreSQL |
+| ORM | Prisma ORM 7 |
+| AI | Ollama, Qwen2.5 3B Instruct; optional Ollama Cloud |
+| Testing | Vitest, Supertest, React Testing Library |
+| Infrastructure | Docker, Docker Compose |
+| CI | GitHub Actions |
+
+
+## Screenshots 
+Projects 
+<img width="1600" height="900" alt="01-projects" src="https://github.com/user-attachments/assets/34d30361-5108-4470-ba9b-a52240d35611" />
+Project Overview
+<img width="1600" height="900" alt="02-project-overview" src="https://github.com/user-attachments/assets/263b5f9b-e71a-4447-8e53-2d802de3c1fc" />
+Requirements
+<img width="1600" height="900" alt="03-requirements" src="https://github.com/user-attachments/assets/6cbf5588-a47a-4098-8df2-503ed02eb9a8" />
+Requirements Creation form 
+<img width="1600" height="900" alt="04-requirement-creation-form" src="https://github.com/user-attachments/assets/b2239329-e4b6-4c85-bb59-d2c51d5ec229" />
+Requirement Detail form 
+<img width="1600" height="900" alt="05-requirement-detail-v2" src="https://github.com/user-attachments/assets/64ee9dd8-1d44-4193-afbb-d6504e618f1c" />
+Deterministic Validation 
+<img width="1600" height="900" alt="06-deterministic-validation" src="https://github.com/user-attachments/assets/eb59e8cc-560f-4be3-9d51-861f25fa5908" />
+AI Analysis 
+<img width="1600" height="900" alt="07-ai-analysis" src="https://github.com/user-attachments/assets/a2be05a2-d1fb-4942-bfa8-f82465d39064" />
+Clarifications
+<img width="1600" height="900" alt="08-clarifications" src="https://github.com/user-attachments/assets/5d552762-f2b1-4f39-a76d-bc613886dc05" />
+Refinement Review 
+<img width="1600" height="900" alt="09-refinement-review" src="https://github.com/user-attachments/assets/d039c263-3ed8-4fc1-88dd-23c8778967dd" />
+Version History 
+<img width="1600" height="900" alt="10-version-history" src="https://github.com/user-attachments/assets/de8c3de7-c433-4915-9e2b-0f871067d047" />
+Traceability Overview 
+<img width="1600" height="900" alt="11-traceability-overview" src="https://github.com/user-attachments/assets/f976345d-1234-45b5-86c3-dd0058eb4be2" />
+Acceptance criteria empty 
+<img width="1600" height="900" alt="12-acceptance-criteria-empty" src="https://github.com/user-attachments/assets/ba6ba69e-f3a0-4072-9761-134f1aa5e9ad" />
+Test cases Empty 
+<img width="1600" height="900" alt="13-test-cases-empty" src="https://github.com/user-attachments/assets/a530cceb-4319-4c84-b387-c3980c3e24bb" />
+Traceability Matrix 
+<img width="1600" height="900" alt="14-traceability-matrix" src="https://github.com/user-attachments/assets/b8a2eedf-b66e-4911-89bc-216e6772f216" />
+Coverage and Gaps 
+<img width="1600" height="900" alt="15-coverage-and-gaps" src="https://github.com/user-attachments/assets/591146f0-dab7-4fd4-8ce6-112b93fc70d2" />
+Human Review Status
+<img width="1600" height="900" alt="16-human-review-status" src="https://github.com/user-attachments/assets/f7f4d5d1-e46a-47d9-a838-5292fbdd10b5" />
+Project Closing 
+<img width="1600" height="900" alt="17-project-closing" src="https://github.com/user-attachments/assets/dc815af6-433e-4c9c-967a-ec80df480dc2" />
+
+
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 22 or later
+- npm
+- Git
+- Docker Desktop with Docker Compose
+
+### Run with Docker Compose
+
+1. Clone the repository:
+
+   ```bash
+   git clone <YOUR_REPOSITORY_URL>
+   cd SpecForge_AI
+   ```
+
+2. Create your environment file:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   On Windows PowerShell:
+
+   ```powershell
+   Copy-Item .env.example .env
+   ```
+
+3. Start the application:
+
+   ```bash
+   docker compose up --build
+   ```
+
+4. Open the application:
+
+   - Frontend: http://localhost:8080
+   - API health: http://localhost:3000/api/health
+
+### Run for Local Development
+
+```bash
 npm ci
 cp .env.example .env
 docker compose up -d db
 npm run dev
 ```
 
-Use `Copy-Item .env.example .env` instead of `cp` in PowerShell. Frontend runs at port 5173, API at 3000.
+On Windows PowerShell, use `Copy-Item .env.example .env` for the environment-file copy.
 
-## Database and checks
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3000
 
-The schema is `prisma/schema.prisma`. Create development migrations with `npm run db:migrate -- --name descriptive_name`; generate the Prisma 7 client with `npm run db:generate`. Projects support create, list/filter/page, edit, and archive. Requirements support create, list/filter/page, edit, archive, and read-only version history. Changes to title, description, or priority create an immutable version; requirement key and status edits do not. Updates require `expectedVersion` and return HTTP 409 on stale edits. Phase 3 adds validation reports persisted for one exact requirement version and rule-set version. Checks cover required fields, vague terms, measurable conditions, actors, actions, outcomes, selected failure conditions, exact normalized duplicates, and narrowly patterned potential conflicts.
+## Optional AI Setup
 
-Run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm run test`, and `npm run build`. Integration tests require a dedicated `specforge_test` PostgreSQL database; set `TEST_DATABASE_URL` to that database and run `npm run test:integration --workspace backend`. CI applies migrations and runs both test suites on pushes and pull requests targeting `main`. Remote GitHub Actions results require a successful push and workflow run.
+AI is optional. Project management, requirement versioning, and deterministic validation can be used without AI inference.
 
-The requirement detail page can run validation, show saved report findings and suggested next actions, and inspect report history. Project details show analyzed, error, warning, clean, and unanalyzed requirement counts for current requirement versions. Heuristics are warnings and may need human review; exact duplicates compare normalized title and description, and conflict checks support only stated authentication and session-duration patterns.
+### Local Ollama
 
-## Optional AI analysis (local Ollama or Ollama Cloud)
+Install [Ollama](https://ollama.com/) and download the model:
 
-SpecForge can use local Ollama or Ollama Cloud for semantic findings and product-owner clarification questions. AI is optional; CRUD, version history, and deterministic validation work without it. AI content is treated as untrusted, validated before persistence, and never changes requirement content or deterministic results. Confidence is a model estimate, not a probability. Semantic analysis may miss issues or raise incorrect suggestions.
+```bash
+ollama pull qwen2.5:3b-instruct
+```
 
-The AI integration is optional and provider selection is backend-only through `AI_PROVIDER`. For local mode, install Ollama and Qwen2.5, then configure `AI_PROVIDER=ollama`, `OLLAMA_ENABLED=true`, `OLLAMA_BASE_URL`, and `OLLAMA_MODEL`. For cloud mode, configure `AI_PROVIDER=ollama-cloud`, `OLLAMA_API_KEY`, and a currently supported `OLLAMA_MODEL`; no local Ollama install or model download is needed. Cloud inference sends the supplied requirement context to Ollama Cloud. Cloud models currently do not support Ollama structured output mode, so SpecForge still validates the returned JSON with its unchanged schemas and guards. Use `/api/ai/health` for configuration status; remote cloud model/key availability is confirmed when an inference request runs. See [AI provider configuration](docs/AI_PROVIDER_CONFIGURATION.md), [local Ollama setup](docs/OLLAMA_SETUP.md), and the [development guide](docs/DEVELOPMENT.md#optional-ollama-ai-analysis).
+Configure the backend environment:
 
-For Docker Desktop, `localhost` inside the backend container is the container itself. Set `OLLAMA_DOCKER_BASE_URL=http://host.docker.internal:11434` for a host-installed Ollama instance; Compose keeps the Ollama service optional and does not publish port 11434. The backend uses `OLLAMA_BASE_URL` for host-process development and `OLLAMA_DOCKER_BASE_URL` in Compose. Never expose the Ollama endpoint to an untrusted network.
+```env
+AI_PROVIDER=ollama
+OLLAMA_ENABLED=true
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=qwen2.5:3b-instruct
+```
 
-## Clarification, refinement, and acceptance criteria
+For Docker Desktop with Ollama installed on the host, configure:
 
-Import clarification questions from a successful saved AI analysis. Questions can be answered, revised with full answer history, or dismissed; dismissal never counts as an answer. A refinement proposal uses the original version and latest submitted answers, and remains separate from the canonical requirement until explicit approval. Approval checks the base version and creates the next immutable requirement version in the same transaction. Stale drafts cannot be approved.
+```env
+OLLAMA_DOCKER_BASE_URL=http://host.docker.internal:11434
+```
 
-After answers have been incorporated into an approved requirement version, generate Given/When/Then acceptance criteria. Each criterion remains a draft until individually approved. Unresolved details block approval, and historical criteria retain their source version. The app has no authentication model yet, so review timestamps are recorded with `reviewedBy` unset. See the [workflow development guide](docs/DEVELOPMENT.md#phase-5-clarification-and-refinement-workflow).
+### Ollama Cloud
 
-## AI test case generation
+Configure your own cloud credentials in the backend environment:
 
-Generate draft test cases only from resolved acceptance criteria explicitly approved for the current requirement version. Each case keeps source criterion and version links, shows deterministic findings, and needs a separate human approval; draft edits have snapshots. The workflow reuses the configured optional AI provider. If inference is unavailable, no cases are fabricated and the rest of the application remains usable. See [test case generation](docs/TEST_CASE_GENERATION.md).
+```env
+AI_PROVIDER=ollama-cloud
+OLLAMA_ENABLED=true
+OLLAMA_API_KEY=<YOUR_OLLAMA_API_KEY>
+OLLAMA_MODEL=<SUPPORTED_CLOUD_MODEL>
+```
 
-## Traceability and coverage
+Get an API key from [Ollama](https://ollama.com/settings/keys). Never commit API keys or `.env` files. Cloud inference sends the supplied requirement context to Ollama Cloud.
 
-Project details include a version-aware traceability matrix linking requirements to acceptance criteria and generated test cases, current and historical coverage, approval counts, and coverage gaps. Coverage counts approved criteria for current non-archived versions and approved cases with valid exact-version links. Historical evidence is shown separately. See [traceability and coverage](docs/TRACEABILITY.md).
+## Engineering Principles
 
-## Security and readiness
+- Deterministic validation works independently of AI.
+- AI output is validated and treated as untrusted input.
+- AI-generated artifacts remain drafts until human approval.
+- Requirement versions are immutable.
+- Acceptance criteria and test cases retain links to their source requirement versions.
+- Coverage counts only valid, approved artifacts with correct version links.
 
-SpecForge currently has no authentication or project-level user authorization. Do not expose it to untrusted networks or use it as a multi-user service until access control is implemented. Docker Compose development ports bind to localhost. See [security findings and deployment precautions](SECURITY.md), [AI evaluation](docs/AI_EVALUATION.md), [Ollama setup and current verification](docs/OLLAMA_SETUP.md), and [reliability behavior](docs/RELIABILITY.md).
+## Testing
 
-## Demo preparation status
+Run the project checks from the repository root:
 
-The Phase 9 demo uses a real local Qwen2.5 3B analysis and a refinement draft whose review transition was invoked during preparation; no identified stakeholder is recorded as reviewer. Acceptance criteria were rejected by source grounding, so no successful criterion or downstream test case is available to show. No application screenshots or video have been produced. See the [10-minute demo plan](docs/DEMO_SCRIPT.md), [manual screenshot guide](docs/SCREENSHOT_GUIDE.md), and [five-slide outline](docs/PRESENTATION_OUTLINE.md) for an accurate presentation plan and capture instructions.
+```bash
+npm run lint
+npm run format:check
+npm run typecheck
+npm run test
+npm run build
+```
 
-## Troubleshooting
+Integration tests require a dedicated PostgreSQL test database. Configure `TEST_DATABASE_URL`, then run:
 
-- Docker connection failure: start Docker Desktop and wait for the engine.
-- Port conflict: change the host port mapping in Compose.
-- API environment error: check `.env` and `DATABASE_URL`.
-- Database persistence: keep the `postgres_data` volume when stopping services.
+```bash
+npm run test:integration --workspace backend
+```
 
-See [development guide](docs/DEVELOPMENT.md) for more detail.
+## Project Structure
+
+```text
+SpecForge_AI/
+├── frontend/
+├── backend/
+├── prisma/
+├── docs/
+│   └── screenshots/
+├── docker-compose.yml
+├── .env.example
+├── package.json
+└── README.md
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Limitations
+
+- Authentication and project-level user authorization are not implemented.
+- Do not expose the application to untrusted networks or use it as a multi-user service.
+- Deterministic conflict checks cover only selected patterns.
+- AI suggestions may be incorrect or incomplete and require human review.
+- Cloud AI availability depends on the configured account, model, and quota.
+
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Architecture Decisions](docs/DECISIONS.md)
+- [Development Guide](docs/DEVELOPMENT.md)
+- [AI Provider Configuration](docs/AI_PROVIDER_CONFIGURATION.md)
+- [Ollama Setup](docs/OLLAMA_SETUP.md)
+- [AI Evaluation](docs/AI_EVALUATION.md)
+- [Test Case Generation](docs/TEST_CASE_GENERATION.md)
+- [Traceability](docs/TRACEABILITY.md)
+- [Reliability](docs/RELIABILITY.md)
+- [Security](SECURITY.md)
+
+---
+
+**SpecForge AI — From Requirements to Reliable Software.**
