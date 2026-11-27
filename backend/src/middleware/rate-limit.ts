@@ -1,3 +1,4 @@
+
 import type { RequestHandler } from "express";
 
 interface RateLimitOptions {
@@ -6,54 +7,79 @@ interface RateLimitOptions {
   scope: string;
 }
 
+interface RateLimitBucket {
+  count: number;
+  expiresAt: number;
+}
+
 export function createRateLimit(options: RateLimitOptions): RequestHandler {
-  const buckets = new Map<string, { count: number; resetAt: number }>();
-  let requestsSincePrune = 0;
+  const requests = new Map<string, RateLimitBucket>();
+  let cleanupCounter = 0;
 
   return (req, res, next) => {
-    const now = Date.now();
-    const key = req.ip || req.socket.remoteAddress || "unknown";
-    let bucket = buckets.get(key);
-    if (!bucket || bucket.resetAt <= now) {
-      if (++requestsSincePrune % 128 === 0 || buckets.size >= 10_000) {
-        for (const [address, value] of buckets) {
-          if (value.resetAt <= now) buckets.delete(address);
+    const currentTime = Date.now();
+    const clientIp = req.ip || req.socket.remoteAddress || "unknown";
+
+    let record = requests.get(clientIp);
+
+    if (!record || record.expiresAt <= currentTime) {
+      cleanupCounter++;
+
+      if (cleanupCounter % 100 === 0 || requests.size >= 10000) {
+        for (const [ip, entry] of requests.entries()) {
+          if (entry.expiresAt <= currentTime) {
+            requests.delete(ip);
+          }
         }
       }
-      if (!bucket && buckets.size >= 10_000) {
+
+      if (!record && requests.size >= 10000) {
         res.setHeader("Retry-After", "60");
         res.status(429).json({
           error: {
             code: "RATE_LIMITED",
-            message: "Too many requests. Try again later.",
+            message: "Too many requests. Please try again later.",
           },
         });
         return;
       }
-      bucket = { count: 0, resetAt: now + options.windowMs };
-      buckets.set(key, bucket);
+
+      record = {
+        count: 0,
+        expiresAt: currentTime + options.windowMs,
+      };
+
+      requests.set(clientIp, record);
     }
 
-    bucket.count += 1;
-    res.setHeader("RateLimit-Limit", options.max);
-    res.setHeader(
-      "RateLimit-Remaining",
-      Math.max(0, options.max - bucket.count),
+    record.count++;
+
+    const remainingRequests = Math.max(
+      0,
+      options.max - record.count
     );
-    res.setHeader("RateLimit-Reset", Math.ceil((bucket.resetAt - now) / 1000));
-    if (bucket.count > options.max) {
-      res.setHeader(
-        "Retry-After",
-        Math.max(1, Math.ceil((bucket.resetAt - now) / 1000)),
-      );
+
+    const timeRemaining = Math.max(
+      1,
+      Math.ceil((record.expiresAt - currentTime) / 1000)
+    );
+
+    res.setHeader("RateLimit-Limit", options.max);
+    res.setHeader("RateLimit-Remaining", remainingRequests);
+    res.setHeader("RateLimit-Reset", timeRemaining);
+
+    if (record.count > options.max) {
+      res.setHeader("Retry-After", timeRemaining);
+
       res.status(429).json({
         error: {
           code: "RATE_LIMITED",
-          message: `Too many ${options.scope} requests. Try again later.`,
+          message: `Too many ${options.scope} requests. Please try again later.`,
         },
       });
       return;
     }
+
     next();
   };
 }
@@ -63,6 +89,7 @@ export const apiRateLimit = createRateLimit({
   max: 600,
   scope: "API",
 });
+
 export const aiRateLimit = createRateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
